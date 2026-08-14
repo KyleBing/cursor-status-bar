@@ -2,6 +2,7 @@
 xcuserdata/
 DerivedData/
 build/
+dist/
 *.xcuserstate
 *.moved-aside
 .swiftpm/

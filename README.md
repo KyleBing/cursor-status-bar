@@ -47,6 +47,16 @@ open build/Build/Products/Debug/CursorStatusBar.app
 - macOS 14+
 - 有效的 Cursor session token
 
+## 打包
+
+本地生成 zip / dmg（输出到 `dist/`）：
+
+```bash
+./scripts/package.sh
+```
+
+产物：`dist/CursorStatusBar-<version>.zip` 与 `dist/CursorStatusBar-<version>.dmg`。
+
 ## 发布
 
 推送版本 tag（如 `v1.00`）后，GitHub Actions 会自动打包 `CursorStatusBar.app` 并上传到 [Releases](https://github.com/KyleBing/cursor-status-bar/releases)：
