@@ -16,6 +16,9 @@
 		AA00000000000000000007 /* TokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000017 /* TokenStore.swift */; };
 		AA00000000000000000008 /* UsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000018 /* UsageStore.swift */; };
 		AA0000000000000000000C /* StatusPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001C /* StatusPanel.swift */; };
+		AA0000000000000000000D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001D /* Assets.xcassets */; };
+		AA0000000000000000000E /* CursorLocalToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001E /* CursorLocalToken.swift */; };
+		AA0000000000000000000F /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001F /* libsqlite3.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +34,9 @@
 		AA0000000000000000001C /* StatusPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusPanel.swift; sourceTree = "<group>"; };
 		AA0000000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0000000000000000001B /* CursorStatusBar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CursorStatusBar.entitlements; sourceTree = "<group>"; };
+		AA0000000000000000001D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0000000000000000001E /* CursorLocalToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocalToken.swift; sourceTree = "<group>"; };
+		AA0000000000000000001F /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0000000000000000000F /* libsqlite3.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,9 +71,11 @@
 				AA00000000000000000016 /* StatusRingImage.swift */,
 				AA0000000000000000001C /* StatusPanel.swift */,
 				AA00000000000000000017 /* TokenStore.swift */,
+				AA0000000000000000001E /* CursorLocalToken.swift */,
 				AA00000000000000000018 /* UsageStore.swift */,
 				AA0000000000000000001A /* Info.plist */,
 				AA0000000000000000001B /* CursorStatusBar.entitlements */,
+				AA0000000000000000001D /* Assets.xcassets */,
 			);
 			path = CursorStatusBar;
 			sourceTree = "<group>";
@@ -82,6 +91,7 @@
 		AA00000000000000000033 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000000000000000001F /* libsqlite3.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -144,6 +154,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0000000000000000000D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +173,7 @@
 				AA00000000000000000006 /* StatusRingImage.swift in Sources */,
 				AA00000000000000000007 /* TokenStore.swift in Sources */,
 				AA00000000000000000008 /* UsageStore.swift in Sources */,
+				AA0000000000000000000E /* CursorLocalToken.swift in Sources */,
 				AA0000000000000000000C /* StatusPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,7 +232,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -245,7 +257,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

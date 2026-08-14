@@ -23,9 +23,9 @@ open build/Build/Products/Debug/CursorStatusBar.app
 
 ## Token
 
-1. 浏览器登录 [cursor.com](https://cursor.com)，开发者工具 → Application / Storage → Cookies。
-2. 复制 `WorkosCursorSessionToken`（JWT，或 `userId::jwt` 均可）。
-3. 点击菜单栏圆环，在底部 Token 栏粘贴并 **保存**。只写入本机 Keychain。
+本机已安装并登录 Cursor 时，启动会自动从 `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb` 读取 `cursorAuth/accessToken`。也可在面板点 **从 Cursor 获取**。
+
+仍可手动粘贴：浏览器登录 [cursor.com](https://cursor.com)，Cookies 里复制 `WorkosCursorSessionToken`（JWT，或 `userId::jwt`），点 **保存**。只写入本机 Keychain。
 
 ## 使用
 
@@ -34,6 +34,7 @@ open build/Build/Products/Debug/CursorStatusBar.app
 | 左键圆环 | 打开面板 |
 | 右键圆环 | 退出 |
 | 24h / 7d / 30d | 查看对应区间 token 柱状图；右侧为该区间合计 |
+| 从 Cursor 获取 | 从本机 Cursor SQLite 导入 session token |
 | 刷新 | 重新拉取摘要、列表和当前图表 |
 | 登录时打开 | 开机随用户登录启动 |
 
@@ -45,5 +46,14 @@ open build/Build/Products/Debug/CursorStatusBar.app
 
 - macOS 14+
 - 有效的 Cursor session token
+
+## 发布
+
+推送版本 tag（如 `v1.00`）后，GitHub Actions 会自动打包 `CursorStatusBar.app` 并上传到 [Releases](https://github.com/KyleBing/cursor-status-bar/releases)：
+
+```bash
+git tag v1.00
+git push origin v1.00
+```
 
 变更记录见 [CHANGELOG.md](CHANGELOG.md)。

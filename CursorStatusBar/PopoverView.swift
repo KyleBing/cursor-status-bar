@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import Charts
 import ServiceManagement
 
@@ -22,7 +23,7 @@ struct PopoverView: View {
         .padding(.horizontal, 14)
         .padding(.top, 8)
         .padding(.bottom, 8)
-        .background(Color.white)
+        .background(Color(nsColor: .windowBackgroundColor))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .frame(width: 360)
         .task {
@@ -39,10 +40,23 @@ struct PopoverView: View {
             HStack {
                 Text("Cursor usage")
                     .font(.headline)
+                // 标题旁显示最近一次用量刷新的相对时间
+                if store.lastUpdated != nil {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        Text(relativeUpdated(from: store.lastUpdated, now: context.date))
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Spacer()
                 if store.isLoading {
                     ProgressView().controlSize(.small)
                 }
+                // 版本号来自 Info.plist，与 GitHub tag 对齐
+                Text("v\(appVersion)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                githubLink
             }
             if let usage = store.usage {
                 labeledPct("Auto", usage.autoRemaining)
@@ -58,6 +72,45 @@ struct PopoverView: View {
                 Text("保存 token 后刷新").font(.caption).foregroundStyle(.secondary)
             }
         }
+    }
+
+    // 相对时间：10s ago / 2m ago / 1h ago / 1d ago
+    private func relativeUpdated(from date: Date?, now: Date) -> String {
+        guard let date else { return "" }
+        let seconds = max(0, Int(now.timeIntervalSince(date)))
+        if seconds < 60 { return "\(seconds)s ago" }
+        let minutes = seconds / 60
+        if minutes < 60 { return "\(minutes)m ago" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h ago" }
+        return "\(hours / 24)d ago"
+    }
+
+    // Bundle 短版本，例如 1.00
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.00"
+    }
+
+    private var githubURL: URL {
+        URL(string: "https://github.com/KyleBing/cursor-status-bar")!
+    }
+
+    // 仅显示 GitHub 图标，点击打开仓库；不抢默认键盘焦点，避免打开面板时出现高亮框
+    private var githubLink: some View {
+        Button {
+            NSWorkspace.shared.open(githubURL)
+        } label: {
+            Image("GitHubMark")
+                .resizable()
+                .renderingMode(.template)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 14, height: 14)
+                .foregroundStyle(.secondary)
+        }
+        .buttonStyle(.plain)
+        .focusable(false)
+        .focusEffectDisabled()
+        .help("GitHub")
     }
 
     private func labeledPct(_ title: String, _ pct: Int) -> some View {
@@ -268,6 +321,13 @@ struct PopoverView: View {
                     .controlSize(.small)
             }
             HStack {
+                Button("从 Cursor 获取") {
+                    if let token = store.importTokenFromCursor() {
+                        tokenDraft = token
+                    }
+                }
+                .disabled(!CursorLocalToken.isCursorInstalled)
+                .help(CursorLocalToken.isCursorInstalled ? "从本机 Cursor SQLite 读取 session token" : "未检测到 Cursor")
                 Button("保存") {
                     store.applyToken(tokenDraft)
                 }

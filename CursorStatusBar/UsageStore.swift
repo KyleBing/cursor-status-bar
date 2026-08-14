@@ -21,12 +21,35 @@ final class UsageStore: ObservableObject {
     private var timer: Timer?
 
     init() {
+        // 未保存过 token 且本机有 Cursor 时，从 SQLite 自动导入
+        importFromCursorIfNeeded()
         // 启动即拉一次，之后每分钟刷新周期用量
         Task { await refreshPeriod(forceAuth: true) }
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 await self?.refreshPeriod()
             }
+        }
+    }
+
+    // 无 Keychain token 时尝试读取 Cursor 本地库
+    func importFromCursorIfNeeded() {
+        guard TokenStore.load()?.isEmpty != false else { return }
+        if case .success(let token) = CursorLocalToken.readAccessToken() {
+            TokenStore.save(token)
+            hasToken = true
+        }
+    }
+
+    // 一键从 Cursor SQLite 取 token 并保存
+    func importTokenFromCursor() -> String? {
+        switch CursorLocalToken.readAccessToken() {
+        case .success(let token):
+            applyToken(token)
+            return token
+        case .failure(let err):
+            errorMessage = err.localizedDescription
+            return nil
         }
     }
 

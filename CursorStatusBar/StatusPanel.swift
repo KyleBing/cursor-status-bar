@@ -48,7 +48,7 @@ final class StatusPanelController: NSObject {
                 PopoverView()
                     .environmentObject(store)
                     .frame(width: width, height: maxHeight)
-                    .background(Color.white)
+                    .background(Color(nsColor: .windowBackgroundColor))
                     .ignoresSafeArea()
             )
         )
@@ -57,7 +57,7 @@ final class StatusPanelController: NSObject {
         host.view.frame = NSRect(origin: .zero, size: frame.size)
         host.view.autoresizingMask = [.width, .height]
         host.view.wantsLayer = true
-        host.view.layer?.backgroundColor = NSColor.white.cgColor
+        host.view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
 
         let panel = KeyablePanel(
             contentRect: frame,
@@ -72,7 +72,7 @@ final class StatusPanelController: NSObject {
         panel.becomesKeyOnlyIfNeeded = false
         panel.hasShadow = true
         panel.isOpaque = true
-        panel.backgroundColor = .white
+        panel.backgroundColor = .windowBackgroundColor
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isMovableByWindowBackground = false
@@ -87,6 +87,8 @@ final class StatusPanelController: NSObject {
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
+        // 打开时不要把焦点落到 GitHub 按钮等控件上
+        panel.makeFirstResponder(nil)
 
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.handleOutsideClick()

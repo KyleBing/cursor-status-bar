@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Release app
+        run: |
+          xcodebuild \
+            -scheme CursorStatusBar \
+            -configuration Release \
+            -destination "platform=macOS" \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Zip app
+        run: |
+          APP="build/Build/Products/Release/CursorStatusBar.app"
+          ditto -c -k --keepParent "$APP" CursorStatusBar.zip
+
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" CursorStatusBar.zip \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
