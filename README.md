@@ -1,5 +1,8 @@
 # Cursor Status Bar
 
+<img width="587" height="786" alt="Screenshot 2026-08-14 at 17 43 13" src="https://github.com/user-attachments/assets/56b87ad1-326d-4619-8122-71d94a28933c" />
+
+
 macOS 菜单栏应用：用圆环显示 Cursor **Auto 剩余百分比**。点击打开面板，查看 API 余量、Reset 时间、24h / 7d / 30d token 图表和最近用量。
 
 数据协议与 [m5stack-cardputer-sparks](https://github.com/KyleBing/m5stack-cardputer-sparks) 的 Cursor App 相同（非官方 `cursor.com` 仪表盘接口，可能变更）。
