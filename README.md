@@ -62,7 +62,14 @@ open build/Build/Products/Debug/CursorStatusBar.app
 
 ## 发布
 
-推送版本 tag（如 `v1.01`）后，GitHub Actions 会自动打包 `CursorStatusBar.app` 并上传到 [Releases](https://github.com/KyleBing/cursor-status-bar/releases)：
+本地打包后，手动上传到 [Releases](https://github.com/KyleBing/cursor-status-bar/releases)：
+
+```bash
+./scripts/package.sh
+# 在 GitHub 创建 Release，上传 dist/CursorStatusBar-<version>.zip 或 .dmg
+```
+
+可选：打版本 tag 便于对照版本号（不再触发自动编译）：
 
 ```bash
 git tag v1.01

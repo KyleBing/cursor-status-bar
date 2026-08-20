@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 移除 GitHub Actions 自动发布，改由本地 `./scripts/package.sh` 打包后手动上传 Release。
+
 ## 1.01 — 2026-08-20
 
 - 界面文案英文化，并支持系统语言本地化（含简体中文 `Localizable.xcstrings`）。
