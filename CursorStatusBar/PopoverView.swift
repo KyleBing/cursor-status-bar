@@ -69,26 +69,22 @@ struct PopoverView: View {
             } else if let err = store.errorMessage {
                 Text(err).font(.caption).foregroundStyle(.red)
             } else {
-                Text("保存 token 后刷新").font(.caption).foregroundStyle(.secondary)
+                Text("Refresh after saving token").font(.caption).foregroundStyle(.secondary)
             }
         }
     }
 
-    // 相对时间：10s ago / 2m ago / 1h ago / 1d ago
+    // 相对时间随系统 locale 显示
     private func relativeUpdated(from date: Date?, now: Date) -> String {
         guard let date else { return "" }
-        let seconds = max(0, Int(now.timeIntervalSince(date)))
-        if seconds < 60 { return "\(seconds)s ago" }
-        let minutes = seconds / 60
-        if minutes < 60 { return "\(minutes)m ago" }
-        let hours = minutes / 60
-        if hours < 24 { return "\(hours)h ago" }
-        return "\(hours / 24)d ago"
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: date, relativeTo: now)
     }
 
-    // Bundle 短版本，例如 1.00
+    // Bundle 短版本，例如 1.01
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.00"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.01"
     }
 
     private var githubURL: URL {
@@ -161,7 +157,7 @@ struct PopoverView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                Text("悬停柱状图查看 token")
+                Text("Hover chart to view tokens")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -270,7 +266,7 @@ struct PopoverView: View {
             ScrollView(.vertical) {
                 LazyVStack(alignment: .leading, spacing: 8) {
                     if store.lastEvents.isEmpty {
-                        Text("暂无记录").font(.caption).foregroundStyle(.secondary)
+                        Text("No records").font(.caption).foregroundStyle(.secondary)
                     } else {
                         ForEach(store.lastEvents.prefix(20)) { ev in
                             HStack(alignment: .center, spacing: 8) {
@@ -306,8 +302,20 @@ struct PopoverView: View {
     private var settings: some View {
         VStack(alignment: .leading, spacing: 6) {
             Divider()
-            Text("Token")
-                .font(.subheadline.weight(.semibold))
+            HStack(spacing: 6) {
+                Text("AccessToken")
+                    .font(.subheadline.weight(.semibold))
+                Button {
+                    copyTokenToPasteboard()
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+                .disabled(tokenDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .help("Copy access token")
+                Spacer()
+            }
             HStack {
                 Group {
                     if showToken {
@@ -317,43 +325,60 @@ struct PopoverView: View {
                     }
                 }
                 .textFieldStyle(.roundedBorder)
-                Button(showToken ? "隐藏" : "显示") { showToken.toggle() }
+                Button(showToken ? "Hide" : "Show") { showToken.toggle() }
                     .controlSize(.small)
             }
-            HStack {
-                Button("从 Cursor 获取") {
-                    if let token = store.importTokenFromCursor() {
-                        tokenDraft = token
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Button("Import from Cursor") {
+                        if let token = store.importTokenFromCursor() {
+                            tokenDraft = token
+                        }
                     }
-                }
-                .disabled(!CursorLocalToken.isCursorInstalled)
-                .help(CursorLocalToken.isCursorInstalled ? "从本机 Cursor SQLite 读取 session token" : "未检测到 Cursor")
-                Button("保存") {
-                    store.applyToken(tokenDraft)
-                }
-                Button("刷新") {
-                    Task { await store.refreshDetails(forceChart: true) }
-                }
-                Toggle("登录时打开", isOn: Binding(
-                    get: { launchAtLogin },
-                    set: { on in
-                        launchAtLogin = on
-                        try? on ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister()
+                    .disabled(!CursorLocalToken.isCursorInstalled)
+                    .help(CursorLocalToken.isCursorInstalled
+                        ? String(localized: "Import session token from local Cursor SQLite")
+                        : String(localized: "Cursor not detected"))
+                    Button("Save") {
+                        store.applyToken(tokenDraft)
                     }
-                ))
-                .toggleStyle(.checkbox)
-                Spacer()
-                Button("退出") {
-                    NSApplication.shared.terminate(nil)
+                    Button("Refresh") {
+                        Task { await store.refreshDetails(forceChart: true) }
+                    }
+                    Spacer(minLength: 0)
+                }
+                HStack(spacing: 8) {
+                    Toggle("Open at login", isOn: Binding(
+                        get: { launchAtLogin },
+                        set: { on in
+                            launchAtLogin = on
+                            try? on ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister()
+                        }
+                    ))
+                    .toggleStyle(.checkbox)
+                    Spacer(minLength: 0)
+                    Button("Quit") {
+                        NSApplication.shared.terminate(nil)
+                    }
                 }
             }
             .controlSize(.small)
         }
     }
 
+    // 复制当前输入框中的 AccessToken
+    private func copyTokenToPasteboard() {
+        let token = tokenDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(token, forType: .string)
+    }
+
     private func timeString(_ date: Date) -> String {
         let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        f.locale = Locale.current
+        f.dateStyle = .short
+        f.timeStyle = .medium
         return f.string(from: date)
     }
 }

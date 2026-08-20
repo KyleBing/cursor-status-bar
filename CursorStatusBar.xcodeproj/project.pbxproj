@@ -19,6 +19,7 @@
 		AA0000000000000000000D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001D /* Assets.xcassets */; };
 		AA0000000000000000000E /* CursorLocalToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001E /* CursorLocalToken.swift */; };
 		AA0000000000000000000F /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001F /* libsqlite3.tbd */; };
+		AA00000000000000000023 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000022 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 		AA0000000000000000001D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000000000000000001E /* CursorLocalToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocalToken.swift; sourceTree = "<group>"; };
 		AA0000000000000000001F /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		AA00000000000000000022 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +78,7 @@
 				AA0000000000000000001A /* Info.plist */,
 				AA0000000000000000001B /* CursorStatusBar.entitlements */,
 				AA0000000000000000001D /* Assets.xcassets */,
+				AA00000000000000000022 /* Localizable.xcstrings */,
 			);
 			path = CursorStatusBar;
 			sourceTree = "<group>";
@@ -138,6 +141,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = AA00000000000000000030;
 			productRefGroup = AA00000000000000000032 /* Products */;
@@ -155,6 +159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0000000000000000000D /* Assets.xcassets in Resources */,
+				AA00000000000000000023 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,7 +237,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.00;
+				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -257,7 +262,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.00;
+				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

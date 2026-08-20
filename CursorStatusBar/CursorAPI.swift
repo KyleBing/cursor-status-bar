@@ -9,10 +9,10 @@ enum CursorAPIError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .missingToken: return "未设置 token"
-        case .badCookie: return "token 无法构成 Cookie"
+        case .missingToken: return String(localized: "Token not set")
+        case .badCookie: return String(localized: "Token cannot form Cookie")
         case .http(let code): return "HTTP \(code)"
-        case .decode: return "JSON 解析失败"
+        case .decode: return String(localized: "JSON decode failed")
         case .noUserId: return "no user id"
         }
     }

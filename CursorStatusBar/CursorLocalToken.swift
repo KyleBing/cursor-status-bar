@@ -10,10 +10,10 @@ enum CursorLocalToken {
 
         var errorDescription: String? {
             switch self {
-            case .cursorNotInstalled: return "未检测到已安装的 Cursor"
-            case .dbMissing: return "未找到 Cursor 本地数据库"
-            case .openFailed: return "无法读取 Cursor 数据库"
-            case .tokenMissing: return "Cursor 数据库中没有 accessToken，请先在 Cursor 里登录"
+            case .cursorNotInstalled: return String(localized: "Cursor is not installed")
+            case .dbMissing: return String(localized: "Cursor local database not found")
+            case .openFailed: return String(localized: "Cannot read Cursor database")
+            case .tokenMissing: return String(localized: "No accessToken in Cursor database; sign in to Cursor first")
             }
         }
     }

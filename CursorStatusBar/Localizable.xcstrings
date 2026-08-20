@@ -1,0 +1,287 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@  %@ tokens" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  %2$@ tokens"
+          }
+        }
+      }
+    },
+    "%@ tokens" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "AccessToken" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AccessToken"
+          }
+        }
+      }
+    },
+    "Cannot read Cursor database" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取 Cursor 数据库"
+          }
+        }
+      }
+    },
+    "Copy access token" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制 AccessToken"
+          }
+        }
+      }
+    },
+    "Cursor is not installed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未检测到已安装的 Cursor"
+          }
+        }
+      }
+    },
+    "Cursor local database not found" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到 Cursor 本地数据库"
+          }
+        }
+      }
+    },
+    "Cursor not detected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未检测到 Cursor"
+          }
+        }
+      }
+    },
+    "Cursor usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cursor 用量"
+          }
+        }
+      }
+    },
+    "GitHub" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub"
+          }
+        }
+      }
+    },
+    "Hide" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏"
+          }
+        }
+      }
+    },
+    "Hover chart to view tokens" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "悬停柱状图查看 token"
+          }
+        }
+      }
+    },
+    "Import from Cursor" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 Cursor 获取"
+          }
+        }
+      }
+    },
+    "Import session token from local Cursor SQLite" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从本机 Cursor SQLite 读取 session token"
+          }
+        }
+      }
+    },
+    "Inc" : {
+
+    },
+    "JSON decode failed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON 解析失败"
+          }
+        }
+      }
+    },
+    "Last usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近用量"
+          }
+        }
+      }
+    },
+    "No accessToken in Cursor database; sign in to Cursor first" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cursor 数据库中没有 accessToken，请先在 Cursor 里登录"
+          }
+        }
+      }
+    },
+    "No records" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无记录"
+          }
+        }
+      }
+    },
+    "Open at login" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录时打开"
+          }
+        }
+      }
+    },
+    "Quit" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出"
+          }
+        }
+      }
+    },
+    "range" : {
+
+    },
+    "Refresh" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新"
+          }
+        }
+      }
+    },
+    "Refresh after saving token" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存 token 后刷新"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "Show" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示"
+          }
+        }
+      }
+    },
+    "t" : {
+
+    },
+    "Token cannot form Cookie" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "token 无法构成 Cookie"
+          }
+        }
+      }
+    },
+    "Token not set" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未设置 token"
+          }
+        }
+      }
+    },
+    "tokens" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tokens"
+          }
+        }
+      }
+    },
+    "v%@" : {
+
+    },
+    "WorkosCursorSessionToken" : {
+
+    }
+  },
+  "version" : "1.0"
+}
