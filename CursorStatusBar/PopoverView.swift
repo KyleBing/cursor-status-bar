@@ -9,6 +9,7 @@ struct PopoverView: View {
     @State private var showToken = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var hoverBar: ChartBar?
+    @State private var tokenCopiedHint = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -314,6 +315,11 @@ struct PopoverView: View {
                 .buttonStyle(.plain)
                 .disabled(tokenDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .help("Copy access token")
+                if tokenCopiedHint {
+                    Text("Access token copied")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
             }
             HStack {
@@ -366,12 +372,17 @@ struct PopoverView: View {
         }
     }
 
-    // 复制当前输入框中的 AccessToken
+    // 复制当前输入框中的 AccessToken，并短暂显示已复制提示
     private func copyTokenToPasteboard() {
         let token = tokenDraft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !token.isEmpty else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(token, forType: .string)
+        tokenCopiedHint = true
+        Task {
+            try? await Task.sleep(for: .seconds(2))
+            tokenCopiedHint = false
+        }
     }
 
     private func timeString(_ date: Date) -> String {

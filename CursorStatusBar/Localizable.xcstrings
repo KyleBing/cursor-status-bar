@@ -17,6 +17,16 @@
     "%lld%%" : {
 
     },
+    "Access token copied" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已复制 AccessToken"
+          }
+        }
+      }
+    },
     "AccessToken" : {
       "localizations" : {
         "zh-Hans" : {
