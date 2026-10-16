@@ -37,6 +37,9 @@
         }
       }
     },
+    "API & Ond rings" : {
+
+    },
     "Cannot read Cursor database" : {
       "localizations" : {
         "zh-Hans" : {
@@ -190,6 +193,9 @@
         }
       }
     },
+    "Ond" : {
+
+    },
     "Open at login" : {
       "localizations" : {
         "zh-Hans" : {
@@ -199,6 +205,9 @@
           }
         }
       }
+    },
+    "Open Cursor Dashboard" : {
+
     },
     "Quit" : {
       "localizations" : {
@@ -254,6 +263,9 @@
       }
     },
     "t" : {
+
+    },
+    "Three black rings, outer Auto, middle API, inner On-demand" : {
 
     },
     "Token cannot form Cookie" : {

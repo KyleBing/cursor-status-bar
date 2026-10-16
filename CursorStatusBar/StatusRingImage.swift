@@ -1,84 +1,82 @@
 import AppKit
 
 enum StatusRingImage {
-    // 内圈 Auto 绿、中环 API 蓝、外环 Ond 橙：固定色
+    // 单环 Auto 仍用绿色扇形；三环模式全部黑色，交给菜单栏模板色随亮/暗变化
     private static let autoPieColor = NSColor.systemGreen
-    private static let apiRingColor = NSColor.systemBlue
-    private static let ondRingColor = NSColor.systemOrange
 
-    // 菜单栏：内圈 Auto 扇形；可选外圈 API / Ond 描边环
+    // 菜单栏：默认内圈 Auto 扇形；三环时外环 Auto、中环 API、最里 Demand 实心扇形
     static func make(
         autoPercent: Int?,
         apiPercent: Int? = nil,
         ondPercent: Int? = nil,
         showExtraRings: Bool = false
     ) -> NSImage {
-        let size: CGFloat = showExtraRings ? 28 : 21
+        // 单环和三环用同一画布，外缘大小保持一致
+        let size: CGFloat = 21
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { rect in
             let center = NSPoint(x: rect.midX, y: rect.midY)
-            // 展示外环时环加粗，内圈缩小
-            let ringWidth: CGFloat = 2.9
-            let ringGap: CGFloat = 0
-
-            let maxRadius = min(rect.width, rect.height) / 2 - 0.4
-            let outerRadius: CGFloat
-            let midRadius: CGFloat
-            let pieRadius: CGFloat
             if showExtraRings {
-                outerRadius = maxRadius - ringWidth / 2
-                midRadius = outerRadius - ringWidth - ringGap
-                // 内圈明显小于双环，留一点呼吸感
-                pieRadius = midRadius - ringWidth / 2 - 1.4
+                drawTripleRings(
+                    center: center,
+                    rect: rect,
+                    autoPercent: autoPercent,
+                    apiPercent: apiPercent,
+                    ondPercent: ondPercent
+                )
             } else {
-                outerRadius = 0
-                midRadius = 0
-                pieRadius = maxRadius
-            }
-
-            // 已用完：深色底圈
-            let used = NSBezierPath(ovalIn: NSRect(
-                x: center.x - pieRadius,
-                y: center.y - pieRadius,
-                width: pieRadius * 2,
-                height: pieRadius * 2
-            ))
-            NSColor.black.withAlphaComponent(0.72).setFill()
-            used.fill()
-
-            if let percent = autoPercent {
-                let p = min(100, max(0, percent))
-                if p > 0 {
-                    drawPie(center: center, radius: pieRadius, percent: p, color: autoPieColor)
-                }
-                // 展示外环时不画数字，只保留扇形
-                if !showExtraRings {
-                    drawCenterText("\(p)", in: rect, fontSize: p >= 100 ? 7 : 8.5)
-                }
-            } else if !showExtraRings {
-                drawCenterText("--", in: rect, fontSize: 8)
-            }
-
-            if showExtraRings {
-                // 中环：API；外环：On-demand
-                drawStrokeRing(
-                    center: center,
-                    radius: midRadius,
-                    width: ringWidth,
-                    percent: apiPercent,
-                    color: apiRingColor
-                )
-                drawStrokeRing(
-                    center: center,
-                    radius: outerRadius,
-                    width: ringWidth,
-                    percent: ondPercent,
-                    color: ondRingColor
-                )
+                drawAutoPie(center: center, rect: rect, autoPercent: autoPercent)
             }
             return true
         }
-        image.isTemplate = false
+        // 模板图只认黑色和透明度，菜单栏会在亮色用黑、暗色用白
+        image.isTemplate = showExtraRings
         return image
+    }
+
+    // 外环 Auto、中环 API 描边；最里 Demand 实心扇形。外缘与单环扇形对齐
+    private static func drawTripleRings(
+        center: NSPoint,
+        rect: NSRect,
+        autoPercent: Int?,
+        apiPercent: Int?,
+        ondPercent: Int?
+    ) {
+        let ringWidth: CGFloat = 1.95
+        // 环与环之间留出略宽的缝，避免三环贴在一起
+        let ringGap: CGFloat = 0.75
+        // 与 drawAutoPie 的 pieRadius 相同，保证外圈视觉大小一致
+        let outerEdge = min(rect.width, rect.height) / 2 - 0.4
+        let outerRadius = outerEdge - ringWidth / 2
+        let midRadius = outerRadius - ringWidth - ringGap
+        let innerRadius = midRadius - ringWidth / 2 - ringGap
+        let ink = NSColor.black
+
+        drawStrokeRing(center: center, radius: outerRadius, width: ringWidth, percent: autoPercent, color: ink)
+        drawStrokeRing(center: center, radius: midRadius, width: ringWidth, percent: apiPercent, color: ink)
+        drawInnerPie(center: center, radius: innerRadius, percent: ondPercent, color: ink)
+    }
+
+    // 单环：Auto 剩余扇形 + 中间数字
+    private static func drawAutoPie(center: NSPoint, rect: NSRect, autoPercent: Int?) {
+        let pieRadius = min(rect.width, rect.height) / 2 - 0.4
+        let used = NSBezierPath(ovalIn: NSRect(
+            x: center.x - pieRadius,
+            y: center.y - pieRadius,
+            width: pieRadius * 2,
+            height: pieRadius * 2
+        ))
+        NSColor.black.withAlphaComponent(0.72).setFill()
+        used.fill()
+
+        if let percent = autoPercent {
+            let p = min(100, max(0, percent))
+            if p > 0 {
+                drawPie(center: center, radius: pieRadius, percent: p, color: autoPieColor)
+            }
+            drawCenterText("\(p)", in: rect, fontSize: p >= 100 ? 7 : 8.5)
+        } else {
+            drawCenterText("--", in: rect, fontSize: 8)
+        }
     }
 
     // 剩余百分比扇形（从 12 点顺时针）
@@ -99,6 +97,23 @@ enum StatusRingImage {
         pie.fill()
     }
 
+    // 最内层实心扇形：暗色底盘 + 剩余百分比实心扇区
+    private static func drawInnerPie(center: NSPoint, radius: CGFloat, percent: Int?, color: NSColor) {
+        let disk = NSBezierPath(ovalIn: NSRect(
+            x: center.x - radius,
+            y: center.y - radius,
+            width: radius * 2,
+            height: radius * 2
+        ))
+        NSColor.black.withAlphaComponent(0.28).setFill()
+        disk.fill()
+
+        guard let percent else { return }
+        let p = min(100, max(0, percent))
+        guard p > 0 else { return }
+        drawPie(center: center, radius: radius, percent: p, color: color)
+    }
+
     // 描边环：底轨 + 剩余弧；percent 为 nil 时只画暗轨
     private static func drawStrokeRing(
         center: NSPoint,
@@ -116,7 +131,8 @@ enum StatusRingImage {
             clockwise: false
         )
         track.lineWidth = width
-        NSColor.white.withAlphaComponent(0.18).setStroke()
+        // 底轨用较低透明度，剩余弧用实色，模板模式下仍能分出进度
+        NSColor.black.withAlphaComponent(0.28).setStroke()
         track.stroke()
 
         guard let percent else { return }

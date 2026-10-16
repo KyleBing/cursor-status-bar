@@ -202,7 +202,8 @@ struct PopoverView: View {
                         .controlSize(.regular)
                 }
             }
-            .frame(height: 216)
+            // 图表区高度约为原先的 2/3
+            .frame(height: 144)
         }
         .onChange(of: store.chartRange) { _, _ in
             hoverBar = nil
@@ -292,25 +293,26 @@ struct PopoverView: View {
             Text("Last usage")
                 .font(.subheadline.weight(.semibold))
             ScrollView(.vertical) {
-                LazyVStack(alignment: .leading, spacing: 8) {
+                LazyVStack(alignment: .leading, spacing: 6) {
                     if store.lastEvents.isEmpty {
                         Text("No records").font(.caption).foregroundStyle(.secondary)
                     } else {
                         ForEach(store.lastEvents.prefix(20)) { ev in
+                            // 时间、模型、用量放在同一行
                             HStack(alignment: .center, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text(timeString(ev.timestamp))
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                    Text(ev.model)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
+                                Text(timeString(ev.timestamp))
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize()
+                                Text(ev.model)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
                                 Spacer(minLength: 8)
                                 Text(ev.tokensLabel)
-                                    .font(.title3.monospacedDigit().weight(.bold))
+                                    .font(.body.monospacedDigit().weight(.semibold))
                                     .foregroundStyle(.primary)
+                                    .fixedSize()
                                 if ev.isIncluded {
                                     Text("Inc")
                                         .font(.caption2.weight(.bold))
@@ -394,10 +396,10 @@ struct PopoverView: View {
                         NSApplication.shared.terminate(nil)
                     }
                 }
-                // 菜单栏外圈：中环 API、外环 Ond，默认关
+                // 三环：外 Auto、中 API、内 Demand，默认关
                 Toggle("API & Ond rings", isOn: $store.showExtraRings)
                     .toggleStyle(.checkbox)
-                    .help("Show API (middle) and On-demand (outer) rings around the Auto indicator")
+                    .help("Three black rings, outer Auto, middle API, inner On-demand")
                 // 最后一排：打开 Cursor Dashboard 网页
                 Button {
                     NSWorkspace.shared.open(dashboardURL)
