@@ -108,8 +108,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func updateStatusItem() {
         let usage = store.usage
         let extra = store.showExtraRings
-        // 三环外缘与单环同大，状态栏占位也保持一致
-        statusItem?.length = 23
+        // 三柱比圆环宽，占位跟着图标走
+        let iconWidth = extra ? StatusRingImage.barIconSize.width : StatusRingImage.pieIconSize.width
+        statusItem?.length = iconWidth + 2
         statusItem?.button?.image = StatusRingImage.make(
             autoPercent: usage.map(\.autoRemaining),
             apiPercent: extra ? usage.map(\.apiRemaining) : nil,

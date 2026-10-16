@@ -62,17 +62,20 @@ struct PopoverView: View {
             if let usage = store.usage {
                 labeledPct("Auto", usage.autoRemaining)
                 labeledPct("API", usage.apiRemaining)
-                // On-demand：有额度时用进度条，否则只显示已用金额
-                if let ondPct = usage.ondRemaining {
-                    labeledPct("Ond", ondPct)
-                } else if let ond = usage.ondLabel {
+                // On-demand 用金额代替百分比，有上限时仍保留进度条
+                if let ond = usage.ondLabel {
                     HStack(spacing: 8) {
                         Text("Ond")
                             .font(.subheadline.weight(.medium))
                             .frame(width: 36, alignment: .leading)
                         Text(ond)
                             .font(.subheadline.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                            .fixedSize()
+                        if let ondPct = usage.ondRemaining {
+                            ProgressView(value: Double(ondPct), total: 100)
+                                .tint(ondPct <= 15 ? .red : .green)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
                 }
                 if let reset = usage.resetLabel {
@@ -396,10 +399,10 @@ struct PopoverView: View {
                         NSApplication.shared.terminate(nil)
                     }
                 }
-                // 三环：外 Auto、中 API、内 Demand，默认关
-                Toggle("API & Ond rings", isOn: $store.showExtraRings)
+                // 三柱：左绿 Auto、中蓝 API、右橙 Demand，默认关
+                Toggle("Usage bars", isOn: $store.showExtraRings)
                     .toggleStyle(.checkbox)
-                    .help("Three black rings, outer Auto, middle API, inner On-demand")
+                    .help("Three bars: green Auto, blue API, orange On-demand")
                 // 最后一排：打开 Cursor Dashboard 网页
                 Button {
                     NSWorkspace.shared.open(dashboardURL)

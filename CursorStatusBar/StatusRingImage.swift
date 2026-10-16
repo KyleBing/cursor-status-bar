@@ -1,59 +1,74 @@
 import AppKit
 
 enum StatusRingImage {
-    // 单环 Auto 仍用绿色扇形；三环模式全部黑色，交给菜单栏模板色随亮/暗变化
+    // 单环 Auto 仍用绿色扇形
     private static let autoPieColor = NSColor.systemGreen
+    // 三柱固定色：绿 Auto、蓝 API、橙 On-demand
+    private static let autoBarColor = NSColor(srgbRed: 0.22, green: 0.80, blue: 0.38, alpha: 1)
+    private static let apiBarColor = NSColor(srgbRed: 0.25, green: 0.56, blue: 1.00, alpha: 1)
+    private static let ondBarColor = NSColor(srgbRed: 1.00, green: 0.62, blue: 0.12, alpha: 1)
+    // 三柱图标比单环更宽，状态栏占位要跟着变
+    static let barIconSize = NSSize(width: 27, height: 18)
+    static let pieIconSize = NSSize(width: 21, height: 21)
 
-    // 菜单栏：默认内圈 Auto 扇形；三环时外环 Auto、中环 API、最里 Demand 实心扇形
+    // 菜单栏：默认 Auto 扇形；打开后改成三根整柱
     static func make(
         autoPercent: Int?,
         apiPercent: Int? = nil,
         ondPercent: Int? = nil,
         showExtraRings: Bool = false
     ) -> NSImage {
-        // 单环和三环用同一画布，外缘大小保持一致
-        let size: CGFloat = 21
-        let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { rect in
-            let center = NSPoint(x: rect.midX, y: rect.midY)
+        let size = showExtraRings ? barIconSize : pieIconSize
+        let image = NSImage(size: size, flipped: false) { rect in
             if showExtraRings {
-                drawTripleRings(
-                    center: center,
+                drawUsageBars(
                     rect: rect,
                     autoPercent: autoPercent,
                     apiPercent: apiPercent,
                     ondPercent: ondPercent
                 )
             } else {
-                drawAutoPie(center: center, rect: rect, autoPercent: autoPercent)
+                drawAutoPie(center: NSPoint(x: rect.midX, y: rect.midY), rect: rect, autoPercent: autoPercent)
             }
             return true
         }
-        // 模板图只认黑色和透明度，菜单栏会在亮色用黑、暗色用白
-        image.isTemplate = showExtraRings
+        // 柱子带颜色，不能当模板图，否则菜单栏会抹成黑白
+        image.isTemplate = false
         return image
     }
 
-    // 外环 Auto、中环 API 描边；最里 Demand 实心扇形。外缘与单环扇形对齐
-    private static func drawTripleRings(
-        center: NSPoint,
+    // 左 Auto、中 API、右 On-demand。淡色是整根柱，实色从底部按剩余比例填
+    private static func drawUsageBars(
         rect: NSRect,
         autoPercent: Int?,
         apiPercent: Int?,
         ondPercent: Int?
     ) {
-        let ringWidth: CGFloat = 1.95
-        // 环与环之间留出略宽的缝，避免三环贴在一起
-        let ringGap: CGFloat = 0.75
-        // 与 drawAutoPie 的 pieRadius 相同，保证外圈视觉大小一致
-        let outerEdge = min(rect.width, rect.height) / 2 - 0.4
-        let outerRadius = outerEdge - ringWidth / 2
-        let midRadius = outerRadius - ringWidth - ringGap
-        let innerRadius = midRadius - ringWidth / 2 - ringGap
-        let ink = NSColor.black
+        let specs: [(Int?, NSColor)] = [
+            (autoPercent, autoBarColor),
+            (apiPercent, apiBarColor),
+            (ondPercent, ondBarColor)
+        ]
+        let inset: CGFloat = 1
+        let gap: CGFloat = 2
+        let barWidth = (rect.width - inset * 2 - gap * CGFloat(specs.count - 1)) / CGFloat(specs.count)
+        let bottom = inset
+        let fullHeight = rect.height - inset * 2
 
-        drawStrokeRing(center: center, radius: outerRadius, width: ringWidth, percent: autoPercent, color: ink)
-        drawStrokeRing(center: center, radius: midRadius, width: ringWidth, percent: apiPercent, color: ink)
-        drawInnerPie(center: center, radius: innerRadius, percent: ondPercent, color: ink)
+        for (index, spec) in specs.enumerated() {
+            let x = inset + CGFloat(index) * (barWidth + gap)
+            let track = NSRect(x: x, y: bottom, width: barWidth, height: fullHeight)
+            spec.1.withAlphaComponent(0.28).setFill()
+            track.fill()
+
+            guard let percent = spec.0 else { continue }
+            let p = min(100, max(0, percent))
+            let filled = fullHeight * CGFloat(p) / 100
+            guard filled > 0 else { continue }
+            let bar = NSRect(x: x, y: bottom, width: barWidth, height: filled)
+            spec.1.setFill()
+            bar.fill()
+        }
     }
 
     // 单环：Auto 剩余扇形 + 中间数字
@@ -95,63 +110,6 @@ enum StatusRingImage {
         pie.close()
         color.setFill()
         pie.fill()
-    }
-
-    // 最内层实心扇形：暗色底盘 + 剩余百分比实心扇区
-    private static func drawInnerPie(center: NSPoint, radius: CGFloat, percent: Int?, color: NSColor) {
-        let disk = NSBezierPath(ovalIn: NSRect(
-            x: center.x - radius,
-            y: center.y - radius,
-            width: radius * 2,
-            height: radius * 2
-        ))
-        NSColor.black.withAlphaComponent(0.28).setFill()
-        disk.fill()
-
-        guard let percent else { return }
-        let p = min(100, max(0, percent))
-        guard p > 0 else { return }
-        drawPie(center: center, radius: radius, percent: p, color: color)
-    }
-
-    // 描边环：底轨 + 剩余弧；percent 为 nil 时只画暗轨
-    private static func drawStrokeRing(
-        center: NSPoint,
-        radius: CGFloat,
-        width: CGFloat,
-        percent: Int?,
-        color: NSColor
-    ) {
-        let track = NSBezierPath()
-        track.appendArc(
-            withCenter: center,
-            radius: radius,
-            startAngle: 0,
-            endAngle: 360,
-            clockwise: false
-        )
-        track.lineWidth = width
-        // 底轨用较低透明度，剩余弧用实色，模板模式下仍能分出进度
-        NSColor.black.withAlphaComponent(0.28).setStroke()
-        track.stroke()
-
-        guard let percent else { return }
-        let p = min(100, max(0, percent))
-        guard p > 0 else { return }
-        let startDeg: CGFloat = 90
-        let endDeg = startDeg - 360 * CGFloat(p) / 100
-        let arc = NSBezierPath()
-        arc.appendArc(
-            withCenter: center,
-            radius: radius,
-            startAngle: startDeg,
-            endAngle: endDeg,
-            clockwise: true
-        )
-        arc.lineWidth = width
-        arc.lineCapStyle = .butt
-        color.setStroke()
-        arc.stroke()
     }
 
     private static func drawCenterText(_ text: String, in rect: NSRect, fontSize: CGFloat) {

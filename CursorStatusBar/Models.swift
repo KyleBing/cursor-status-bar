@@ -22,14 +22,20 @@ struct PeriodUsage: Equatable {
         return clamp(100 - usedPct)
     }
 
+    // 金额展示，例如 $2/$30；没有上限时只显示已用
     var ondLabel: String? {
         guard ondValid else { return nil }
-        let used = Double(ondUsedCents) / 100.0
-        if ondLimitCents > 0 {
-            let limit = Double(ondLimitCents) / 100.0
-            return String(format: "ond $%.2f/$%.2f", used, limit)
+        let used = Self.dollar(ondUsedCents)
+        guard ondLimitCents > 0 else { return used }
+        return "\(used)/\(Self.dollar(ondLimitCents))"
+    }
+
+    // 整美元不带小数，有分才保留两位
+    private static func dollar(_ cents: Int) -> String {
+        if cents % 100 == 0 {
+            return "$\(cents / 100)"
         }
-        return String(format: "ond $%.2f", used)
+        return String(format: "$%.2f", Double(cents) / 100.0)
     }
 
     var resetLabel: String? {
