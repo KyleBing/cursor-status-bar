@@ -89,12 +89,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             statusItem = nil
         }
 
-        let item = NSStatusBar.system.statusItem(withLength: 23)
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.autosaveName = "CursorUsageBarStatusItem"
         item.isVisible = true
         if let button = item.button {
             button.imagePosition = .imageOnly
-            button.toolTip = "Cursor Auto remaining"
+            button.toolTip = "Cursor usage"
             button.target = self
             button.action = #selector(handleStatusClick)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -106,7 +106,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @MainActor
     func updateStatusItem() {
-        statusItem?.button?.image = StatusRingImage.make(percent: store.usage.map { $0.autoRemaining })
+        let usage = store.usage
+        let extra = store.showExtraRings
+        statusItem?.length = extra ? 30 : 23
+        statusItem?.button?.image = StatusRingImage.make(
+            autoPercent: usage.map(\.autoRemaining),
+            apiPercent: extra ? usage.map(\.apiRemaining) : nil,
+            ondPercent: extra ? usage?.ondRemaining : nil,
+            showExtraRings: extra
+        )
         statusItem?.button?.title = ""
     }
 

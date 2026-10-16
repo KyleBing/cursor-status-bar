@@ -15,6 +15,13 @@ struct PeriodUsage: Equatable {
     var autoRemaining: Int { clamp(100 - autoPercentUsed) }
     var apiRemaining: Int { clamp(100 - apiPercentUsed) }
 
+    // On-demand 剩余百分比（有额度上限时才有意义）
+    var ondRemaining: Int? {
+        guard ondValid, ondLimitCents > 0 else { return nil }
+        let usedPct = Double(ondUsedCents) / Double(ondLimitCents) * 100
+        return clamp(100 - usedPct)
+    }
+
     var ondLabel: String? {
         guard ondValid else { return nil }
         let used = Double(ondUsedCents) / 100.0

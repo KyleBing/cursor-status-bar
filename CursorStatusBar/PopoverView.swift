@@ -62,6 +62,19 @@ struct PopoverView: View {
             if let usage = store.usage {
                 labeledPct("Auto", usage.autoRemaining)
                 labeledPct("API", usage.apiRemaining)
+                // On-demand：有额度时用进度条，否则只显示已用金额
+                if let ondPct = usage.ondRemaining {
+                    labeledPct("Ond", ondPct)
+                } else if let ond = usage.ondLabel {
+                    HStack(spacing: 8) {
+                        Text("Ond")
+                            .font(.subheadline.weight(.medium))
+                            .frame(width: 36, alignment: .leading)
+                        Text(ond)
+                            .font(.subheadline.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 if let reset = usage.resetLabel {
                     Text(reset)
                         .font(.caption)
@@ -83,13 +96,17 @@ struct PopoverView: View {
         return formatter.localizedString(for: date, relativeTo: now)
     }
 
-    // Bundle 短版本，例如 1.01
+    // Bundle 短版本，例如 1.02
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.01"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.02"
     }
 
     private var githubURL: URL {
         URL(string: "https://github.com/KyleBing/cursor-status-bar")!
+    }
+
+    private var dashboardURL: URL {
+        URL(string: "https://cursor.com/dashboard?tab=usage")!
     }
 
     // 仅显示 GitHub 图标，点击打开仓库；不抢默认键盘焦点，避免打开面板时出现高亮框
@@ -143,10 +160,20 @@ struct PopoverView: View {
                     if store.isChartLoading {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("\(TokenFormat.label(chartTokenTotal)) tokens")
-                            .font(.subheadline.monospacedDigit().weight(.semibold))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text("\(TokenFormat.label(chartTokenTotal)) tokens")
+                                .font(.subheadline.monospacedDigit().weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                            // 当前 range 独立刷新时间，与上方周期用量不同步
+                            if store.chartLastUpdated != nil {
+                                TimelineView(.periodic(from: .now, by: 1)) { context in
+                                    Text(relativeUpdated(from: store.chartLastUpdated, now: context.date))
+                                        .font(.caption2.monospacedDigit())
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                        }
                     }
                 }
                 .frame(width: 120, alignment: .trailing)
@@ -367,6 +394,20 @@ struct PopoverView: View {
                         NSApplication.shared.terminate(nil)
                     }
                 }
+                // 菜单栏外圈：中环 API、外环 Ond，默认关
+                Toggle("API & Ond rings", isOn: $store.showExtraRings)
+                    .toggleStyle(.checkbox)
+                    .help("Show API (middle) and On-demand (outer) rings around the Auto indicator")
+                // 最后一排：打开 Cursor Dashboard 网页
+                Button {
+                    NSWorkspace.shared.open(dashboardURL)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "safari")
+                        Text("Open Cursor Dashboard")
+                    }
+                }
+                .buttonStyle(.link)
             }
             .controlSize(.small)
         }
