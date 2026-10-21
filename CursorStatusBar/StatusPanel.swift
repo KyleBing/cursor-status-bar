@@ -4,12 +4,14 @@ import SwiftUI
 // 不用自定义圆角/箭头：系统 NSPanel 自带边框和阴影，不会被 clip。
 final class StatusPanelController: NSObject {
     private let store: UsageStore
+    private let deepSeek: DeepSeekStore
     private var panel: KeyablePanel?
     private var host: NSHostingController<AnyView>?
     private var clickMonitor: Any?
 
-    init(store: UsageStore) {
+    init(store: UsageStore, deepSeek: DeepSeekStore) {
         self.store = store
+        self.deepSeek = deepSeek
     }
 
     var isVisible: Bool { panel?.isVisible == true }
@@ -47,6 +49,7 @@ final class StatusPanelController: NSObject {
             rootView: AnyView(
                 PopoverView()
                     .environmentObject(store)
+                    .environmentObject(deepSeek)
                     .frame(width: width, height: maxHeight)
                     .background(Color(nsColor: .windowBackgroundColor))
                     .ignoresSafeArea()

@@ -20,6 +20,11 @@
 		AA0000000000000000000E /* CursorLocalToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001E /* CursorLocalToken.swift */; };
 		AA0000000000000000000F /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000001F /* libsqlite3.tbd */; };
 		AA00000000000000000023 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000022 /* Localizable.xcstrings */; };
+		AA00000000000000000038 /* DeepSeekAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000028 /* DeepSeekAPI.swift */; };
+		AA00000000000000000039 /* DeepSeekStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000029 /* DeepSeekStore.swift */; };
+		AA0000000000000000003A /* DeepSeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000002A /* DeepSeekView.swift */; };
+		AA0000000000000000003C /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000002C /* AppLanguage.swift */; };
+		AA0000000000000000003D /* DeepSeekLoginWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000002D /* DeepSeekLoginWindow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +44,11 @@
 		AA0000000000000000001E /* CursorLocalToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocalToken.swift; sourceTree = "<group>"; };
 		AA0000000000000000001F /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		AA00000000000000000022 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		AA00000000000000000028 /* DeepSeekAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekAPI.swift; sourceTree = "<group>"; };
+		AA00000000000000000029 /* DeepSeekStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000002A /* DeepSeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekView.swift; sourceTree = "<group>"; };
+		AA0000000000000000002C /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		AA0000000000000000002D /* DeepSeekLoginWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekLoginWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +78,11 @@
 				AA00000000000000000011 /* AppDelegate.swift */,
 				AA00000000000000000012 /* CursorAPI.swift */,
 				AA00000000000000000013 /* CursorCookie.swift */,
+				AA00000000000000000028 /* DeepSeekAPI.swift */,
+				AA00000000000000000029 /* DeepSeekStore.swift */,
+				AA0000000000000000002A /* DeepSeekView.swift */,
+				AA0000000000000000002C /* AppLanguage.swift */,
+				AA0000000000000000002D /* DeepSeekLoginWindow.swift */,
 				AA00000000000000000014 /* Models.swift */,
 				AA00000000000000000015 /* PopoverView.swift */,
 				AA00000000000000000016 /* StatusRingImage.swift */,
@@ -180,6 +195,11 @@
 				AA00000000000000000008 /* UsageStore.swift in Sources */,
 				AA0000000000000000000E /* CursorLocalToken.swift in Sources */,
 				AA0000000000000000000C /* StatusPanel.swift in Sources */,
+				AA00000000000000000038 /* DeepSeekAPI.swift in Sources */,
+				AA00000000000000000039 /* DeepSeekStore.swift in Sources */,
+				AA0000000000000000003A /* DeepSeekView.swift in Sources */,
+				AA0000000000000000003C /* AppLanguage.swift in Sources */,
+				AA0000000000000000003D /* DeepSeekLoginWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,7 +247,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CursorStatusBar/Info.plist;
@@ -237,7 +257,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.02;
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -252,7 +272,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CursorStatusBar/Info.plist;
@@ -262,7 +282,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.02;
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kylebing.CursorUsageBar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -46,14 +46,18 @@ enum CursorStatusBarMain {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     static var shared: AppDelegate?
     var store: UsageStore!
+    // DeepSeek tab 独立状态，避免每次开面板丢失对话
+    var deepSeekStore: DeepSeekStore!
     private var statusItem: NSStatusItem?
     private var panel: StatusPanelController?
     private var cancellable: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        installMainMenu()
         store = UsageStore()
-        panel = StatusPanelController(store: store)
+        deepSeekStore = DeepSeekStore()
+        panel = StatusPanelController(store: store, deepSeek: deepSeekStore)
         Task { @MainActor in
             self.installStatusItem()
         }
@@ -68,6 +72,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    // accessory 应用默认没有主菜单，Cmd+V / Cmd+A 等编辑快捷键会失效。
+    // 补一个标准 Edit 菜单，输入框才能正常粘贴。
+    @MainActor
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+
+        let appItem = NSMenuItem()
+        mainMenu.addItem(appItem)
+        let appMenu = NSMenu()
+        appMenu.addItem(
+            withTitle: String(localized: "Quit"),
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        appItem.submenu = appMenu
+
+        let editItem = NSMenuItem()
+        mainMenu.addItem(editItem)
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Cut", action: Selector(("cut:")), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: Selector(("copy:")), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: Selector(("paste:")), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: Selector(("selectAll:")), keyEquivalent: "a")
+        editItem.submenu = editMenu
+
+        NSApp.mainMenu = mainMenu
+    }
+
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         Task { @MainActor in
             self.installStatusItem()
@@ -77,7 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var quitMenu: NSMenu = {
         let menu = NSMenu()
-        let quit = NSMenuItem(title: "退出", action: #selector(quitApp), keyEquivalent: "q")
+        // 标题跟随界面语言，语言切换后重启即生效
+        let quit = NSMenuItem(title: String(localized: "Quit"), action: #selector(quitApp), keyEquivalent: "q")
         menu.addItem(quit)
         return menu
     }()
@@ -94,7 +130,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         item.isVisible = true
         if let button = item.button {
             button.imagePosition = .imageOnly
-            button.toolTip = "Cursor usage"
+            button.toolTip = "Cursor / DeepSeek usage"
             button.target = self
             button.action = #selector(handleStatusClick)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])

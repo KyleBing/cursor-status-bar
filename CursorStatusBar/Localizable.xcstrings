@@ -11,10 +11,26 @@
         }
       }
     },
+    "%@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%@ tokens" : {
 
     },
+    "%lld." : {
+
+    },
     "%lld%%" : {
+
+    },
+    "×%lld" : {
 
     },
     "Access token copied" : {
@@ -37,8 +53,107 @@
         }
       }
     },
-    "API & Ond rings" : {
-
+    "Account usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账号用量"
+          }
+        }
+      }
+    },
+    "Account usage from platform.deepseek.com" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账号用量来自 platform.deepseek.com"
+          }
+        }
+      }
+    },
+    "API key invalid or deleted. Check platform.deepseek.com/api_keys." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Key 无效或已被删除，请在 platform.deepseek.com/api_keys 检查。"
+          }
+        }
+      }
+    },
+    "Balance" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "余额"
+          }
+        }
+      }
+    },
+    "Balance unavailable" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "余额不可用"
+          }
+        }
+      }
+    },
+    "Balance: %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "余额：%@"
+          }
+        }
+      }
+    },
+    "Blocked by the platform firewall. Sign in at platform.deepseek.com in a browser, then retry." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求被平台防火墙拦截，请在浏览器打开 platform.deepseek.com 登录后再试。"
+          }
+        }
+      }
+    },
+    "By model" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按模型"
+          }
+        }
+      }
+    },
+    "Cache hit" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缓存命中"
+          }
+        }
+      }
+    },
+    "Cache hit rate %.0f%% · %@ hit / %@ miss" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缓存命中率 %.0f%% · 命中 %@ / 未命中 %@"
+          }
+        }
+      }
     },
     "Cannot read Cursor database" : {
       "localizations" : {
@@ -50,12 +165,85 @@
         }
       }
     },
+    "Click “Copy script”, paste it into the Console and press Return." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点「复制脚本」，把它粘到 Console 里回车。"
+          }
+        }
+      }
+    },
+    "Completion" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输出"
+          }
+        }
+      }
+    },
+    "Connect platform to see usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接平台后可查看用量"
+          }
+        }
+      }
+    },
+    "Connect the platform to load account-wide usage" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接平台后可加载账号维度的用量"
+          }
+        }
+      }
+    },
+    "Console blocks pasting the first time: type allow pasting and press Return." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Console 首次会拦截粘贴：输入 allow pasting 回车即可。"
+          }
+        }
+      }
+    },
+    "cookie" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cookie"
+          }
+        }
+      }
+    },
     "Copy access token" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "复制 AccessToken"
+          }
+        }
+      }
+    },
+    "Copy script" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制脚本"
           }
         }
       }
@@ -100,12 +288,96 @@
         }
       }
     },
+    "DeepSeek API key" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek API Key"
+          }
+        }
+      }
+    },
+    "DeepSeek API key not set" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未设置 DeepSeek API Key"
+          }
+        }
+      }
+    },
+    "DeepSeek platform usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 平台用量"
+          }
+        }
+      }
+    },
+    "DeepSeek usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 用量"
+          }
+        }
+      }
+    },
+    "default" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
+          }
+        }
+      }
+    },
+    "eyJ..." : {
+
+    },
+    "Get key" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "获取 Key"
+          }
+        }
+      }
+    },
     "GitHub" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "GitHub"
+          }
+        }
+      }
+    },
+    "Granted %@ · Topped up %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "赠送 %@ · 充值 %@"
           }
         }
       }
@@ -119,6 +391,9 @@
           }
         }
       }
+    },
+    "hit %lld%%" : {
+
     },
     "Hover chart to view tokens" : {
       "localizations" : {
@@ -163,12 +438,43 @@
         }
       }
     },
+    "Language" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        }
+      }
+    },
     "Last usage" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "最近用量"
+          }
+        }
+      }
+    },
+    "Log" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日志"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消息"
           }
         }
       }
@@ -183,6 +489,16 @@
         }
       }
     },
+    "No data source connected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未连接数据源"
+          }
+        }
+      }
+    },
     "No records" : {
       "localizations" : {
         "zh-Hans" : {
@@ -193,8 +509,38 @@
         }
       }
     },
+    "No requests yet" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无请求"
+          }
+        }
+      }
+    },
+    "No usage in this range" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该范围暂无用量"
+          }
+        }
+      }
+    },
     "Ond" : {
 
+    },
+    "Open API docs" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 API 文档"
+          }
+        }
+      }
     },
     "Open at login" : {
       "localizations" : {
@@ -209,6 +555,122 @@
     "Open Cursor Dashboard" : {
 
     },
+    "Open platform usage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开平台用量页"
+          }
+        }
+      }
+    },
+    "Open platform.deepseek.com and sign in." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 platform.deepseek.com 并登录。"
+          }
+        }
+      }
+    },
+    "Or by hand: DevTools → Application → Local Storage → https://platform.deepseek.com → userToken → Value." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或手动复制：开发者工具 → Application → Local Storage → https://platform.deepseek.com → userToken → Value。"
+          }
+        }
+      }
+    },
+    "Or paste the whole “Copy as cURL” of the usage request; token and cookie are extracted automatically." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "也可以直接粘贴用量请求的整段 “Copy as cURL”，会自动提取 token 与 cookie。"
+          }
+        }
+      }
+    },
+    "Paste" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴"
+          }
+        }
+      }
+    },
+    "Paste the platform login token to load account-wide history. This is not the API key." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴平台登录 token 以读取账号完整用量历史，这不是 API key。"
+          }
+        }
+      }
+    },
+    "Paste token" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴 token"
+          }
+        }
+      }
+    },
+    "Platform token invalid or expired. Click “Sign in again” to reload it from platform.deepseek.com." : {
+
+    },
+    "Platform token invalid or expired. Copy a new one from platform.deepseek.com." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平台 token 无效或已过期，请在 platform.deepseek.com 重新复制。"
+          }
+        }
+      }
+    },
+    "Platform token not set" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未设置平台 token"
+          }
+        }
+      }
+    },
+    "Press ⌥⌘I for DevTools, then open the Console tab." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按 ⌥⌘I 打开开发者工具，切到 Console。"
+          }
+        }
+      }
+    },
+    "Prompt" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入"
+          }
+        }
+      }
+    },
     "Quit" : {
       "localizations" : {
         "zh-Hans" : {
@@ -221,6 +683,17 @@
     },
     "range" : {
 
+    },
+    "Reasoning" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推理"
+          }
+        }
+      }
     },
     "Refresh" : {
       "localizations" : {
@@ -242,12 +715,88 @@
         }
       }
     },
+    "Refresh usage and balance" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新用量与余额"
+          }
+        }
+      }
+    },
+    "Relaunch" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重启"
+          }
+        }
+      }
+    },
+    "Requests" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求"
+          }
+        }
+      }
+    },
+    "Reset" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置"
+          }
+        }
+      }
+    },
+    "Response is not valid JSON" : {
+
+    },
+    "Restart to apply" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重启后生效"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "保存"
+          }
+        }
+      }
+    },
+    "Saved" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存"
+          }
+        }
+      }
+    },
+    "Script copied" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已复制脚本"
           }
         }
       }
@@ -262,11 +811,84 @@
         }
       }
     },
+    "Showing latest 30 of %lld" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅显示最近 30 条，共 %lld 条"
+          }
+        }
+      }
+    },
+    "Sign in" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网页登录"
+          }
+        }
+      }
+    },
+    "Sign in again" : {
+
+    },
+    "sk-..." : {
+
+    },
+    "System" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        }
+      }
+    },
     "t" : {
 
     },
-    "Three black rings, outer Auto, middle API, inner On-demand" : {
+    "tab" : {
 
+    },
+    "That is an API key, not the platform token. Open platform.deepseek.com, sign in, then copy userToken from DevTools → Application → Local Storage." : {
+
+    },
+    "The API key is used for the balance query only. Usage history needs the platform token above." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API key 只用于查询余额；用量历史需要上面配置的平台 token。"
+          }
+        }
+      }
+    },
+    "The token is now on the clipboard: click “Paste” below, then “Save”." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "token 已进剪贴板：点下面的「粘贴」，再点「保存」。"
+          }
+        }
+      }
+    },
+    "Three bars: green Auto, blue API, orange On-demand" : {
+
+    },
+    "Token" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Token"
+          }
+        }
+      }
     },
     "Token cannot form Cookie" : {
       "localizations" : {
@@ -277,6 +899,9 @@
           }
         }
       }
+    },
+    "Token expired or rejected by the platform." : {
+
     },
     "Token not set" : {
       "localizations" : {
@@ -297,6 +922,30 @@
           }
         }
       }
+    },
+    "Too many requests. Try again later." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求过于频繁，请稍后再试。"
+          }
+        }
+      }
+    },
+    "Total" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合计"
+          }
+        }
+      }
+    },
+    "Usage bars" : {
+
     },
     "v%@" : {
 

@@ -3,23 +3,43 @@ import AppKit
 import Charts
 import ServiceManagement
 
+// 面板顶部的一级 tab
+enum PopoverTab: String, CaseIterable, Identifiable {
+    case cursor
+    case deepSeek
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .cursor: return "Cursor"
+        case .deepSeek: return "DeepSeek"
+        }
+    }
+}
+
 struct PopoverView: View {
     @EnvironmentObject var store: UsageStore
+    // 记住上次停留的 tab，下次打开面板保持选择
+    @AppStorage("selectedPopoverTab") private var selectedTab: PopoverTab = .cursor
     @State private var tokenDraft = ""
     @State private var showToken = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var hoverBar: ChartBar?
     @State private var tokenCopiedHint = false
+    // 界面语言：改动后要重启才生效，所以单独记一个待重启标记
+    @State private var language = AppLanguage.current
+    @State private var languageNeedsRestart = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            summary
-            Divider()
-            chart
-            Divider()
-            lastList
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            settings
+        VStack(alignment: .leading, spacing: 8) {
+            tabPicker
+            switch selectedTab {
+            case .cursor:
+                cursorTab
+            case .deepSeek:
+                DeepSeekView()
+            }
         }
         .padding(.horizontal, 14)
         .padding(.top, 8)
@@ -34,6 +54,30 @@ struct PopoverView: View {
         .onChange(of: store.chartRange) { _, range in
             Task { await store.selectChart(range) }
         }
+    }
+
+    private var tabPicker: some View {
+        Picker("tab", selection: $selectedTab) {
+            ForEach(PopoverTab.allCases) { tab in
+                Text(tab.title).tag(tab)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+
+    // 原来的 Cursor 面板内容
+    private var cursorTab: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            summary
+            Divider()
+            chart
+            Divider()
+            lastList
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            settings
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var summary: some View {
@@ -99,9 +143,9 @@ struct PopoverView: View {
         return formatter.localizedString(for: date, relativeTo: now)
     }
 
-    // Bundle 短版本，例如 1.02
+    // Bundle 短版本，例如 1.03
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.02"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.03"
     }
 
     private var githubURL: URL {
@@ -403,6 +447,34 @@ struct PopoverView: View {
                 Toggle("Usage bars", isOn: $store.showExtraRings)
                     .toggleStyle(.checkbox)
                     .help("Three bars: green Auto, blue API, orange On-demand")
+                // 界面语言：跟随系统 / English / 简体中文，写 AppleLanguages 后重启生效
+                HStack(spacing: 6) {
+                    Text("Language")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Picker("Language", selection: $language) {
+                        ForEach(AppLanguage.allCases) { lang in
+                            Text(lang.title).tag(lang)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 110)
+                    if languageNeedsRestart {
+                        Text("Restart to apply")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Button("Relaunch") { AppLanguage.relaunch() }
+                            .buttonStyle(.link)
+                            .font(.caption2)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .onChange(of: language) { _, newValue in
+                    // 选择先落盘，重启后读取；提示用户可以立刻重启
+                    AppLanguage.current = newValue
+                    languageNeedsRestart = true
+                }
                 // 最后一排：打开 Cursor Dashboard 网页
                 Button {
                     NSWorkspace.shared.open(dashboardURL)
@@ -440,7 +512,7 @@ struct PopoverView: View {
     }
 }
 
-private struct ChartHoverOverlay: View {
+struct ChartHoverOverlay: View {
     let proxy: ChartProxy
     let bars: [ChartBar]
     let hoverBar: ChartBar?

@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 1.03 — 2026-10-21
+
+- 面板顶部新增 **Cursor / DeepSeek** 两个 tab，并记住上次停留的 tab。
+- 新增 DeepSeek tab（**只读用量面板**）：`/user/balance` 余额；24h / 7d / 30d token 柱状图、按小时 / 天拆分的用量列表与 **By model** 汇总（请求数、缓存命中率、token 总量）。用量历史来自 `platform.deepseek.com` 的账号维度接口，按当前区间的粒度与模型合并成行。
+- 平台用量凭证支持两种粘贴形式：`localStorage.userToken` 的 `value`，或 DevTools Network 里用量请求的 **Copy as cURL**（自动提取 `Authorization` 与 `Cookie`）；token / cookie 分别存本机 Keychain。
+- **手动复制平台凭证**：在 **Paste token** 里给出完整步骤（打开 `platform.deepseek.com` → `⌥⌘I` → Console → 粘贴应用提供的脚本，token 自动进剪贴板 → Paste → Save），也支持直接粘贴 `localStorage.userToken` 的 `value` 或 DevTools 的 **Copy as cURL**（自动提取 `Authorization` 与 `Cookie`）。不再自动读取浏览器数据，因此无需「完全磁盘访问权限」。
+- 未配置平台 token 时用量区显示 `Connect platform` 引导，不再用本应用本地记录兜底。
+- 修复 accessory 应用无主菜单导致输入框无法 `Cmd+V` 粘贴的问题：新增标准 Edit 菜单，并在 API key / 平台 token 输入框旁提供 **Paste** 按钮。
+- DeepSeek API key 单独存 Keychain（account `deepseek.apiKey`），只用于查询余额。
+- 面板滚动内容左右各留 2pt，输入框的边框与焦点环不再贴到裁剪边界。
+- DeepSeek 的 **Last usage** 列表改为固定高度的独立滚动区，与 Cursor tab 的列表高度一致，行数多时不再把整页撑长。
+- 新增**手动切换界面语言**：设置区可选项为跟随系统 / English / 简体中文（写入 `AppleLanguages`，点 **Relaunch** 重启后生效），菜单栏右键菜单标题也随之本地化。
 
 ## 1.02 — 2026-10-16
 
