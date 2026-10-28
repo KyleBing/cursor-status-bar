@@ -24,7 +24,7 @@ final class UsageStore: ObservableObject {
 
     private let api = CursorAPI()
     private var userId: Int = 0
-    private var cookie: String?
+    private var auth: CursorAuth?
     private var chartCache: [ChartRange: [ChartBar]] = [:]
     private var eventCache: [ChartRange: [UsageEvent]] = [:]
     // 各图表 range 独立的最后刷新时间
@@ -54,7 +54,11 @@ final class UsageStore: ObservableObject {
 
     // 无 Keychain token 时尝试读取 Cursor 本地库
     func importFromCursorIfNeeded() {
-        guard TokenStore.load()?.isEmpty != false else { return }
+        guard TokenStore.load()?.isEmpty != false else {
+            // 旧版可能已把 cursor-safe-storage 密文写进 Keychain，启动时解封回写
+            _ = unwrapPersistedTokenIfNeeded()
+            return
+        }
         if case .success(let token) = CursorLocalToken.readAccessToken() {
             TokenStore.save(token)
             hasToken = true
@@ -74,10 +78,19 @@ final class UsageStore: ObservableObject {
     }
 
     func applyToken(_ raw: String) {
-        TokenStore.save(raw)
+        // 粘贴/导入若仍是密封串，先解封再存，避免再次触发「无法构成 Cookie」
+        let usable: String
+        switch CursorLocalToken.unwrapStored(raw) {
+        case .success(let token):
+            usable = token
+        case .failure(let err):
+            errorMessage = err.localizedDescription
+            return
+        }
+        TokenStore.save(usable)
         hasToken = TokenStore.load()?.isEmpty == false
         userId = 0
-        cookie = nil
+        auth = nil
         chartCache.removeAll()
         eventCache.removeAll()
         chartUpdatedAt.removeAll()
@@ -86,29 +99,60 @@ final class UsageStore: ObservableObject {
     }
 
     func refreshPeriod(forceAuth: Bool = false) async {
-        guard let token = TokenStore.load(), !token.isEmpty else {
+        guard let stored = TokenStore.load(), !stored.isEmpty else {
             hasToken = false
             usage = nil
             errorMessage = CursorAPIError.missingToken.localizedDescription
             return
         }
+        // 解封已持久化的密文；失败时提示 Keychain / 重新登录
+        let token: String
+        switch CursorLocalToken.unwrapStored(stored) {
+        case .success(let plain):
+            if plain != stored { TokenStore.save(plain) }
+            token = plain
+        case .failure(let err):
+            hasToken = true
+            errorMessage = err.localizedDescription
+            return
+        }
         hasToken = true
-        guard let cookie = CursorCookie.headerValue(from: token) else {
+        guard let resolved = CursorCookie.resolve(token) else {
             errorMessage = CursorAPIError.badCookie.localizedDescription
             return
         }
-        self.cookie = cookie
+        self.auth = resolved
         isLoading = true
         defer { isLoading = false }
         do {
             if forceAuth || userId == 0 {
-                userId = try await api.authMe(cookie: cookie)
+                // Bearer 路径 GetMe 失败时仍可拉周期用量；Cookie 路径必须有 userId 才能查事件
+                do {
+                    userId = try await api.authMe(auth: resolved)
+                } catch {
+                    if case .cookie = resolved { throw error }
+                    userId = 0
+                }
             }
-            usage = try await api.periodUsage(cookie: cookie)
+            usage = try await api.periodUsage(auth: resolved)
             errorMessage = nil
             lastUpdated = Date()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    // 启动时静默解封已存密文；需要弹 Keychain 时留给用户点「从 Cursor 获取」
+    @discardableResult
+    private func unwrapPersistedTokenIfNeeded() -> Bool {
+        guard let stored = TokenStore.load(), !stored.isEmpty else { return false }
+        switch CursorLocalToken.unwrapStored(stored) {
+        case .success(let plain):
+            if plain != stored { TokenStore.save(plain) }
+            hasToken = true
+            return true
+        case .failure:
+            return false
         }
     }
 
@@ -142,9 +186,9 @@ final class UsageStore: ObservableObject {
     }
 
     func refreshLast() async {
-        guard let cookie, userId > 0 else { return }
+        guard let auth, canFetchEvents(auth) else { return }
         do {
-            lastEvents = try await api.lastEvents(cookie: cookie, userId: userId, pageSize: 20)
+            lastEvents = try await api.lastEvents(auth: auth, userId: userId, pageSize: 20)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -157,11 +201,11 @@ final class UsageStore: ObservableObject {
             isChartLoading = false
             return
         }
-        guard let cookie, userId > 0 else { return }
+        guard let auth, canFetchEvents(auth) else { return }
         isChartLoading = true
         let (start, end) = ChartAggregator.window(for: range)
         do {
-            let events = try await api.allEvents(cookie: cookie, userId: userId, start: start, end: end)
+            let events = try await api.allEvents(auth: auth, userId: userId, start: start, end: end)
             eventCache[range] = events
             let bars = ChartAggregator.bars(events: events, range: range)
             chartCache[range] = bars
@@ -176,6 +220,14 @@ final class UsageStore: ObservableObject {
         }
         if chartRange == range {
             isChartLoading = false
+        }
+    }
+
+    // Cookie 接口必须带 userId；api2 Bearer 的事件接口 userId 可选
+    private func canFetchEvents(_ auth: CursorAuth) -> Bool {
+        switch auth {
+        case .bearer: return true
+        case .cookie: return userId > 0
         }
     }
 }

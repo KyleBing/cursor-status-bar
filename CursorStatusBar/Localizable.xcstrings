@@ -155,6 +155,16 @@
         }
       }
     },
+    "Cannot decrypt Cursor accessToken; sign in to Cursor again" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法解密 Cursor accessToken，请在 Cursor 重新登录后再导入"
+          }
+        }
+      }
+    },
     "Cannot read Cursor database" : {
       "localizations" : {
         "zh-Hans" : {
@@ -425,8 +435,28 @@
         }
       }
     },
+    "Included" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Included"
+          }
+        }
+      }
+    },
     "Inc" : {
 
+    },
+    "Keychain denied Cursor Safe Storage; click Always Allow and import again" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统拒绝读取 Cursor Safe Storage，请点「始终允许」后再点「从 Cursor 获取」"
+          }
+        }
+      }
     },
     "JSON decode failed" : {
       "localizations" : {
@@ -952,6 +982,16 @@
     },
     "WorkosCursorSessionToken" : {
 
+    },
+    "AccessToken or WorkosCursorSessionToken" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AccessToken 或 WorkosCursorSessionToken"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

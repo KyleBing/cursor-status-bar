@@ -147,9 +147,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 三柱比圆环宽，占位跟着图标走
         let iconWidth = extra ? StatusRingImage.barIconSize.width : StatusRingImage.pieIconSize.width
         statusItem?.length = iconWidth + 2
+        // 融合套餐没有 Auto/API 拆分，中间 API 柱不画，避免一直满格
+        let showApi = extra && usage?.planKind != .unified
         statusItem?.button?.image = StatusRingImage.make(
             autoPercent: usage.map(\.autoRemaining),
-            apiPercent: extra ? usage.map(\.apiRemaining) : nil,
+            apiPercent: showApi ? usage.map(\.apiRemaining) : nil,
             ondPercent: extra ? usage?.ondRemaining : nil,
             showExtraRings: extra
         )

@@ -1,5 +1,11 @@
 import Foundation
 
+// 旧套餐拆 Auto/API；融合套餐只有总用量百分比
+enum CursorPlanKind: String, Equatable {
+    case classic
+    case unified
+}
+
 struct PeriodUsage: Equatable {
     var autoPercentUsed: Double = 0
     var apiPercentUsed: Double = 0
@@ -10,8 +16,10 @@ struct PeriodUsage: Equatable {
     var ondLimitCents: Int = 0
     var ondValid: Bool = false
     var billingCycleEnd: Date?
+    // 解析接口后标记，UI 按此切换 Auto/API 或 Included
+    var planKind: CursorPlanKind = .classic
 
-    // Auto 剩余百分比，给状态栏圆环用
+    // Auto / 融合 Included 剩余百分比，给状态栏圆环用
     var autoRemaining: Int { clamp(100 - autoPercentUsed) }
     var apiRemaining: Int { clamp(100 - apiPercentUsed) }
 
@@ -67,6 +75,7 @@ struct UsageEvent: Identifiable, Equatable {
     var chargedCents: Double
 
     var totalTokens: Int { inputTokens + outputTokens + cacheWriteTokens + cacheReadTokens }
+    // 兼容旧 kind 与 Connect 枚举名 USAGE_EVENT_KIND_INCLUDED_IN_*
     var isIncluded: Bool { kind.uppercased().contains("INCLUDED") }
     var chartCents: Double { totalCents > 0 ? totalCents : chargedCents }
 

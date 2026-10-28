@@ -20,48 +20,58 @@ enum CursorAPIError: LocalizedError {
 
 final class CursorAPI {
     private let session: URLSession
-    private let host = URL(string: "https://cursor.com")!
+    private let webHost = URL(string: "https://cursor.com")!
+    // 桌面端同一套 DashboardService（Connect JSON）
+    private let apiHost = URL(string: "https://api2.cursor.sh")!
 
     init(session: URLSession = .shared) {
         self.session = session
     }
 
-    func authMe(cookie: String) async throws -> Int {
-        let data = try await request(method: "GET", path: "/api/auth/me", cookie: cookie, body: nil)
-        let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        if let id = obj?["id"] as? Int { return id }
-        if let id = obj?["id"] as? String, let n = Int(id) { return n }
-        throw CursorAPIError.noUserId
-    }
+    // MARK: - Public
 
-    func periodUsage(cookie: String) async throws -> PeriodUsage {
-        do {
-            let data = try await request(
-                method: "POST",
-                path: "/api/dashboard/get-current-period-usage",
-                cookie: cookie,
-                body: Data("{}".utf8)
-            )
-            return try parsePeriod(data)
-        } catch {
-            let data = try await request(method: "GET", path: "/api/usage-summary", cookie: cookie, body: nil)
-            return try parsePeriod(data)
+    func authMe(auth: CursorAuth) async throws -> Int {
+        switch auth {
+        case .bearer(let token):
+            return try await connectGetMe(token: token)
+        case .cookie(let cookie):
+            return try await webAuthMe(cookie: cookie)
         }
     }
 
-    func lastEvents(cookie: String, userId: Int, pageSize: Int = 20) async throws -> [UsageEvent] {
-        let end = Date()
-        let start = end.addingTimeInterval(-30 * 86400)
-        let page = try await eventsPage(cookie: cookie, userId: userId, start: start, end: end, page: 1, pageSize: pageSize)
-        return page
+    func periodUsage(auth: CursorAuth) async throws -> PeriodUsage {
+        switch auth {
+        case .bearer(let token):
+            // 新套餐 / Unified：桌面端只走 api2 GetCurrentPeriodUsage
+            return try await connectPeriodUsage(token: token)
+        case .cookie(let cookie):
+            do {
+                let data = try await webRequest(
+                    method: "POST",
+                    path: "/api/dashboard/get-current-period-usage",
+                    cookie: cookie,
+                    body: Data("{}".utf8)
+                )
+                return try parsePeriod(data)
+            } catch {
+                let data = try await webRequest(method: "GET", path: "/api/usage-summary", cookie: cookie, body: nil)
+                return try parsePeriod(data)
+            }
+        }
     }
 
-    func allEvents(cookie: String, userId: Int, start: Date, end: Date) async throws -> [UsageEvent] {
+    func lastEvents(auth: CursorAuth, userId: Int, pageSize: Int = 20) async throws -> [UsageEvent] {
+        let end = Date()
+        let start = end.addingTimeInterval(-30 * 86400)
+        return try await eventsPage(auth: auth, userId: userId, start: start, end: end, page: 1, pageSize: pageSize)
+    }
+
+    func allEvents(auth: CursorAuth, userId: Int, start: Date, end: Date) async throws -> [UsageEvent] {
         var page = 1
         var all: [UsageEvent] = []
         while true {
             let batch = try await eventsPage(
-                cookie: cookie,
+                auth: auth,
                 userId: userId,
                 start: start,
                 end: end,
@@ -77,7 +87,93 @@ final class CursorAPI {
         return all
     }
 
-    private func eventsPage(
+    // MARK: - api2 Connect (Bearer)
+
+    private func connectGetMe(token: String) async throws -> Int {
+        let data = try await connectRequest(
+            method: "GetMe",
+            token: token,
+            body: Data("{}".utf8)
+        )
+        guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw CursorAPIError.decode
+        }
+        // Connect JSON：userId / user_id
+        if let id = intVal(root["userId"]) ?? intVal(root["user_id"]) {
+            return id
+        }
+        throw CursorAPIError.noUserId
+    }
+
+    private func connectPeriodUsage(token: String) async throws -> PeriodUsage {
+        let data = try await connectRequest(
+            method: "GetCurrentPeriodUsage",
+            token: token,
+            body: Data("{}".utf8)
+        )
+        return try parsePeriod(data)
+    }
+
+    private func connectEventsPage(
+        token: String,
+        userId: Int,
+        start: Date,
+        end: Date,
+        page: Int,
+        pageSize: Int
+    ) async throws -> [UsageEvent] {
+        let startMs = Int64(start.timeIntervalSince1970 * 1000)
+        let endMs = Int64(end.timeIntervalSince1970 * 1000)
+        var bodyDict: [String: Any] = [
+            "teamId": 0,
+            "startDate": "\(startMs)",
+            "endDate": "\(endMs)",
+            "page": page,
+            "pageSize": pageSize
+        ]
+        // userId 可选；有值时带上，过滤个人记录
+        if userId > 0 {
+            bodyDict["userId"] = userId
+        }
+        let body = try JSONSerialization.data(withJSONObject: bodyDict)
+        let data = try await connectRequest(
+            method: "GetFilteredUsageEvents",
+            token: token,
+            body: body
+        )
+        return parseEvents(data)
+    }
+
+    private func connectRequest(method: String, token: String, body: Data) async throws -> Data {
+        let path = "/aiserver.v1.DashboardService/\(method)"
+        guard let url = URL(string: path, relativeTo: apiHost)?.absoluteURL else {
+            throw CursorAPIError.decode
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        req.setValue("1", forHTTPHeaderField: "Connect-Protocol-Version")
+        req.setValue("CursorStatusBar/1.0", forHTTPHeaderField: "User-Agent")
+        req.httpBody = body
+        let (data, resp) = try await session.data(for: req)
+        let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+        guard (200..<300).contains(code) else { throw CursorAPIError.http(code) }
+        return data
+    }
+
+    // MARK: - cursor.com Cookie（浏览器粘贴 Workos token）
+
+    private func webAuthMe(cookie: String) async throws -> Int {
+        let data = try await webRequest(method: "GET", path: "/api/auth/me", cookie: cookie, body: nil)
+        let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        if let id = obj?["id"] as? Int { return id }
+        if let id = obj?["id"] as? String, let n = Int(id) { return n }
+        throw CursorAPIError.noUserId
+    }
+
+    private func webEventsPage(
         cookie: String,
         userId: Int,
         start: Date,
@@ -96,7 +192,7 @@ final class CursorAPI {
             "pageSize": pageSize
         ]
         let body = try JSONSerialization.data(withJSONObject: bodyDict)
-        let data = try await request(
+        let data = try await webRequest(
             method: "POST",
             path: "/api/dashboard/get-filtered-usage-events",
             cookie: cookie,
@@ -105,8 +201,38 @@ final class CursorAPI {
         return parseEvents(data)
     }
 
-    private func request(method: String, path: String, cookie: String, body: Data?) async throws -> Data {
-        guard let url = URL(string: path, relativeTo: host)?.absoluteURL else {
+    private func eventsPage(
+        auth: CursorAuth,
+        userId: Int,
+        start: Date,
+        end: Date,
+        page: Int,
+        pageSize: Int
+    ) async throws -> [UsageEvent] {
+        switch auth {
+        case .bearer(let token):
+            return try await connectEventsPage(
+                token: token,
+                userId: userId,
+                start: start,
+                end: end,
+                page: page,
+                pageSize: pageSize
+            )
+        case .cookie(let cookie):
+            return try await webEventsPage(
+                cookie: cookie,
+                userId: userId,
+                start: start,
+                end: end,
+                page: page,
+                pageSize: pageSize
+            )
+        }
+    }
+
+    private func webRequest(method: String, path: String, cookie: String, body: Data?) async throws -> Data {
+        guard let url = URL(string: path, relativeTo: webHost)?.absoluteURL else {
             throw CursorAPIError.decode
         }
         var req = URLRequest(url: url)
@@ -125,39 +251,57 @@ final class CursorAPI {
         return data
     }
 
+    // MARK: - Parsing
+
     private func parsePeriod(_ data: Data) throws -> PeriodUsage {
         guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw CursorAPIError.decode
         }
         var out = PeriodUsage()
-        var plan = root["planUsage"] as? [String: Any]
-        if plan == nil, let individual = root["individualUsage"] as? [String: Any] {
-            plan = individual["plan"] as? [String: Any]
+        // planUsage / plan_usage；或 usage-summary 的 individualUsage.plan
+        var plan = dictVal(root, "planUsage") ?? dictVal(root, "plan_usage")
+        if plan == nil, let individual = dictVal(root, "individualUsage") ?? dictVal(root, "individual_usage") {
+            plan = dictVal(individual, "plan")
         }
         if let plan {
-            out.autoPercentUsed = doubleVal(plan["autoPercentUsed"]) ?? 0
-            out.apiPercentUsed = doubleVal(plan["apiPercentUsed"]) ?? 0
-            out.totalPercentUsed = doubleVal(plan["totalPercentUsed"])
+            let auto = doubleVal(plan["autoPercentUsed"]) ?? doubleVal(plan["auto_percent_used"]) ?? 0
+            let api = doubleVal(plan["apiPercentUsed"]) ?? doubleVal(plan["api_percent_used"]) ?? 0
+            let total = doubleVal(plan["totalPercentUsed"]) ?? doubleVal(plan["total_percent_used"])
             out.remaining = doubleVal(plan["remaining"])
             out.limit = doubleVal(plan["limit"])
-        }
-        if let slu = root["spendLimitUsage"] as? [String: Any] {
-            out.ondValid = true
-            let indUsed = intVal(slu["individualUsed"])
-            let poolUsed = intVal(slu["pooledUsed"])
-            if let indUsed, indUsed >= 0 {
-                out.ondUsedCents = indUsed
-                out.ondLimitCents = intVal(slu["individualLimit"]) ?? 0
-            } else if let poolUsed, poolUsed >= 0 {
-                out.ondUsedCents = poolUsed
-                out.ondLimitCents = intVal(slu["pooledLimit"]) ?? 0
+            out.totalPercentUsed = total
+            // 无 Auto/API 拆分、只有 total → 融合套餐；圆环用 total 填 Auto 槽位
+            if auto == 0, api == 0, let total {
+                out.planKind = .unified
+                out.autoPercentUsed = total
+                out.apiPercentUsed = 0
             } else {
-                out.ondUsedCents = intVal(slu["totalSpend"]) ?? 0
-                out.ondLimitCents = intVal(slu["individualLimit"]) ?? intVal(slu["pooledLimit"]) ?? 0
+                out.planKind = .classic
+                out.autoPercentUsed = auto
+                out.apiPercentUsed = api
             }
         }
-        if let individual = root["individualUsage"] as? [String: Any],
-           let ond = individual["onDemand"] as? [String: Any] {
+        if let slu = dictVal(root, "spendLimitUsage") ?? dictVal(root, "spend_limit_usage") {
+            out.ondValid = true
+            let indUsed = intVal(slu["individualUsed"]) ?? intVal(slu["individual_used"])
+            let poolUsed = intVal(slu["pooledUsed"]) ?? intVal(slu["pooled_used"])
+            if let indUsed, indUsed >= 0 {
+                out.ondUsedCents = indUsed
+                out.ondLimitCents = intVal(slu["individualLimit"]) ?? intVal(slu["individual_limit"]) ?? 0
+            } else if let poolUsed, poolUsed >= 0 {
+                out.ondUsedCents = poolUsed
+                out.ondLimitCents = intVal(slu["pooledLimit"]) ?? intVal(slu["pooled_limit"]) ?? 0
+            } else {
+                out.ondUsedCents = intVal(slu["totalSpend"]) ?? intVal(slu["total_spend"]) ?? 0
+                out.ondLimitCents = intVal(slu["individualLimit"])
+                    ?? intVal(slu["individual_limit"])
+                    ?? intVal(slu["pooledLimit"])
+                    ?? intVal(slu["pooled_limit"])
+                    ?? 0
+            }
+        }
+        if let individual = dictVal(root, "individualUsage") ?? dictVal(root, "individual_usage"),
+           let ond = dictVal(individual, "onDemand") ?? dictVal(individual, "on_demand") {
             let enabled = (ond["enabled"] as? Bool) ?? false
             let used = intVal(ond["used"]) ?? 0
             if enabled || used > 0 || out.ondValid {
@@ -166,29 +310,52 @@ final class CursorAPI {
                 out.ondLimitCents = intVal(ond["limit"]) ?? 0
             }
         }
-        out.billingCycleEnd = parseDate(root["billingCycleEnd"])
+        out.billingCycleEnd = parseDate(root["billingCycleEnd"] ?? root["billing_cycle_end"])
         return out
     }
 
     private func parseEvents(_ data: Data) -> [UsageEvent] {
-        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let list = root["usageEventsDisplay"] as? [[String: Any]]
-        else { return [] }
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return [] }
+        // Connect：usageEventsDisplay；旧接口同名字段
+        let list = (root["usageEventsDisplay"] as? [[String: Any]])
+            ?? (root["usage_events_display"] as? [[String: Any]])
+            ?? []
         return list.compactMap { ev in
             guard let ts = parseDate(ev["timestamp"]) else { return nil }
-            let usage = ev["tokenUsage"] as? [String: Any] ?? [:]
+            let usage = dictVal(ev, "tokenUsage") ?? dictVal(ev, "token_usage") ?? [:]
+            let kindRaw = ev["kind"]
+            let kind: String
+            if let s = kindRaw as? String {
+                kind = s
+            } else if let n = intVal(kindRaw) {
+                kind = "\(n)"
+            } else {
+                kind = ""
+            }
+            // Connect 可能用 requestsCosts / cursorTokenFee，旧字段 chargedCents
+            let charged = doubleVal(ev["chargedCents"])
+                ?? doubleVal(ev["charged_cents"])
+                ?? doubleVal(ev["requestsCosts"])
+                ?? doubleVal(ev["requests_costs"])
+                ?? doubleVal(ev["cursorTokenFee"])
+                ?? doubleVal(ev["cursor_token_fee"])
+                ?? 0
             return UsageEvent(
                 timestamp: ts,
                 model: (ev["model"] as? String) ?? "-",
-                kind: (ev["kind"] as? String) ?? "",
-                inputTokens: intVal(usage["inputTokens"]) ?? 0,
-                outputTokens: intVal(usage["outputTokens"]) ?? 0,
-                cacheWriteTokens: intVal(usage["cacheWriteTokens"]) ?? 0,
-                cacheReadTokens: intVal(usage["cacheReadTokens"]) ?? 0,
-                totalCents: doubleVal(usage["totalCents"]) ?? 0,
-                chargedCents: doubleVal(ev["chargedCents"]) ?? 0
+                kind: kind,
+                inputTokens: intVal(usage["inputTokens"]) ?? intVal(usage["input_tokens"]) ?? 0,
+                outputTokens: intVal(usage["outputTokens"]) ?? intVal(usage["output_tokens"]) ?? 0,
+                cacheWriteTokens: intVal(usage["cacheWriteTokens"]) ?? intVal(usage["cache_write_tokens"]) ?? 0,
+                cacheReadTokens: intVal(usage["cacheReadTokens"]) ?? intVal(usage["cache_read_tokens"]) ?? 0,
+                totalCents: doubleVal(usage["totalCents"]) ?? doubleVal(usage["total_cents"]) ?? 0,
+                chargedCents: charged
             )
         }
+    }
+
+    private func dictVal(_ root: [String: Any], _ key: String) -> [String: Any]? {
+        root[key] as? [String: Any]
     }
 
     private func parseDate(_ raw: Any?) -> Date? {

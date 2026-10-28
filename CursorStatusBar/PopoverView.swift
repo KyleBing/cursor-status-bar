@@ -104,8 +104,13 @@ struct PopoverView: View {
                 githubLink
             }
             if let usage = store.usage {
-                labeledPct("Auto", usage.autoRemaining)
-                labeledPct("API", usage.apiRemaining)
+                // 旧套餐：Auto + API；融合套餐：一条 Included
+                if usage.planKind == .unified {
+                    labeledPct("Included", usage.autoRemaining)
+                } else {
+                    labeledPct("Auto", usage.autoRemaining)
+                    labeledPct("API", usage.apiRemaining)
+                }
                 // On-demand 用金额代替百分比，有上限时仍保留进度条
                 if let ond = usage.ondLabel {
                     HStack(spacing: 8) {
@@ -401,9 +406,9 @@ struct PopoverView: View {
             HStack {
                 Group {
                     if showToken {
-                        TextField("WorkosCursorSessionToken", text: $tokenDraft)
+                        TextField("AccessToken or WorkosCursorSessionToken", text: $tokenDraft)
                     } else {
-                        SecureField("WorkosCursorSessionToken", text: $tokenDraft)
+                        SecureField("AccessToken or WorkosCursorSessionToken", text: $tokenDraft)
                     }
                 }
                 .textFieldStyle(.roundedBorder)
