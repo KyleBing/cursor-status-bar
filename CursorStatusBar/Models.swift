@@ -48,17 +48,38 @@ struct PeriodUsage: Equatable {
 
     var resetLabel: String? {
         guard let end = billingCycleEnd else { return nil }
+        return Self.resetText(until: end, prefix: "Reset")
+    }
+
+    static func resetText(until end: Date, prefix: String) -> String {
         let days = max(0, Calendar.current.dateComponents([.day], from: Date(), to: end).day ?? 0)
         let fmt = DateFormatter()
         fmt.dateStyle = .long
         fmt.timeStyle = .none
         let dateText = fmt.string(from: end)
         let dayWord = days == 1 ? "day" : "days"
-        return "Reset in \(days) \(dayWord) on \(dateText)"
+        return "\(prefix) in \(days) \(dayWord) on \(dateText)"
     }
 
     private func clamp(_ value: Double) -> Int {
         Int(min(100, max(0, value)).rounded())
+    }
+}
+
+// Grok Bot 周用量（DashboardService GetSandUsageStatus）；无额度时不展示
+struct GrokBotUsage: Equatable {
+    var percentUsed: Double
+    var resetAt: Date?
+    var planLabel: String?
+
+    // 与 Auto/API 一致：进度条按剩余百分比
+    var remaining: Int {
+        Int(min(100, max(0, 100 - percentUsed)).rounded())
+    }
+
+    var resetLabel: String? {
+        guard let end = resetAt else { return nil }
+        return PeriodUsage.resetText(until: end, prefix: "Grok reset")
     }
 }
 

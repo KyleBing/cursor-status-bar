@@ -60,6 +60,32 @@ final class CursorAPI {
         }
     }
 
+    // Grok Bot 周用量；账号未开通或无额度时返回 nil，失败也当没有
+    func grokBotUsage(auth: CursorAuth) async -> GrokBotUsage? {
+        do {
+            switch auth {
+            case .bearer(let token):
+                let data = try await connectRequest(
+                    method: "GetSandUsageStatus",
+                    token: token,
+                    body: Data("{}".utf8)
+                )
+                return parseGrokBotUsage(data)
+            case .cookie(let cookie):
+                // 与周期用量同一套 dashboard 路径命名；没有该接口时吞掉错误
+                let data = try await webRequest(
+                    method: "POST",
+                    path: "/api/dashboard/get-sand-usage-status",
+                    cookie: cookie,
+                    body: Data("{}".utf8)
+                )
+                return parseGrokBotUsage(data)
+            }
+        } catch {
+            return nil
+        }
+    }
+
     func lastEvents(auth: CursorAuth, userId: Int, pageSize: Int = 20) async throws -> [UsageEvent] {
         let end = Date()
         let start = end.addingTimeInterval(-30 * 86400)
@@ -314,6 +340,31 @@ final class CursorAPI {
         return out
     }
 
+    // GetSandUsageStatus：有非零 included 额度且带回 usage_percent 才展示
+    private func parseGrokBotUsage(_ data: Data) -> GrokBotUsage? {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        let includedZero = (root["includedLimitZero"] as? Bool)
+            ?? (root["included_limit_zero"] as? Bool)
+            ?? false
+        let hasLimit = (root["hasNonZeroIncludedLimit"] as? Bool)
+            ?? (root["has_non_zero_included_limit"] as? Bool)
+            ?? !includedZero
+        guard hasLimit, !includedZero else { return nil }
+        guard let used = doubleVal(root["usagePercent"] ?? root["usage_percent"]) else {
+            return nil
+        }
+        let reset = parseDate(root["nextResetTimestampUtc"] ?? root["next_reset_timestamp_utc"])
+        let label = (root["grokPlanLabel"] as? String) ?? (root["grok_plan_label"] as? String)
+        let trimmed = label?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return GrokBotUsage(
+            percentUsed: used,
+            resetAt: reset,
+            planLabel: (trimmed?.isEmpty == false) ? trimmed : nil
+        )
+    }
+
     private func parseEvents(_ data: Data) -> [UsageEvent] {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return [] }
         // Connect：usageEventsDisplay；旧接口同名字段
@@ -359,6 +410,13 @@ final class CursorAPI {
     }
 
     private func parseDate(_ raw: Any?) -> Date? {
+        // protobuf Timestamp JSON：{ "seconds": "...", "nanos": 0 }
+        if let dict = raw as? [String: Any] {
+            if let sec = intVal(dict["seconds"]) {
+                let nanos = doubleVal(dict["nanos"]) ?? 0
+                return Date(timeIntervalSince1970: TimeInterval(sec) + nanos / 1_000_000_000)
+            }
+        }
         if let s = raw as? String {
             if let ms = Int64(s), ms > 1_000_000_000_000 {
                 return Date(timeIntervalSince1970: TimeInterval(ms) / 1000)

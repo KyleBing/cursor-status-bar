@@ -4,6 +4,8 @@ import Combine
 @MainActor
 final class UsageStore: ObservableObject {
     @Published var usage: PeriodUsage?
+    // Grok Bot 周用量；接口无额度或失败时为 nil，面板不显示
+    @Published var grokBot: GrokBotUsage?
     @Published var lastEvents: [UsageEvent] = []
     @Published var chartBars: [ChartBar] = []
     @Published var chartRange: ChartRange = .hours24
@@ -102,6 +104,7 @@ final class UsageStore: ObservableObject {
         guard let stored = TokenStore.load(), !stored.isEmpty else {
             hasToken = false
             usage = nil
+            grokBot = nil
             errorMessage = CursorAPIError.missingToken.localizedDescription
             return
         }
@@ -135,6 +138,8 @@ final class UsageStore: ObservableObject {
                 }
             }
             usage = try await api.periodUsage(auth: resolved)
+            // 与周期用量并行拉 Grok Bot；没有额度就不显示
+            grokBot = await api.grokBotUsage(auth: resolved)
             errorMessage = nil
             lastUpdated = Date()
         } catch {

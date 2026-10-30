@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.04 — 2026-10-30
+
+- Cursor 面板在有额度时显示 **Grok Bot** 周用量进度与重置时间（`GetSandUsageStatus`）。
+- 凭证改为本机 `Application Support` 文件存储，避免每次启动因钥匙串 ACL 反复输入系统密码；首次启动会从旧钥匙串迁移一次。
+
 ## 1.03 — 2026-10-21
 
 - 面板顶部新增 **Cursor / DeepSeek** 两个 tab，并记住上次停留的 tab。

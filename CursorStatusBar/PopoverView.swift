@@ -127,8 +127,17 @@ struct PopoverView: View {
                         }
                     }
                 }
+                // Grok Bot 周用量：GetSandUsageStatus 有额度时才显示
+                if let grok = store.grokBot {
+                    labeledPct("Grok", grok.remaining)
+                }
                 if let reset = usage.resetLabel {
                     Text(reset)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let grokReset = store.grokBot?.resetLabel {
+                    Text(grokReset)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -148,9 +157,9 @@ struct PopoverView: View {
         return formatter.localizedString(for: date, relativeTo: now)
     }
 
-    // Bundle 短版本，例如 1.03
+    // Bundle 短版本，例如 1.04
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.03"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.04"
     }
 
     private var githubURL: URL {
